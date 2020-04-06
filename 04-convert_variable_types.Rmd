@@ -1,0 +1,184 @@
+# Convert Variable Types {#convert_variable_types}
+
+```{r, warning = FALSE, message = FALSE}
+
+#Store variables containing one of the strings below.
+numeric_vars<- stringr::str_subset(names(outcome_data), 
+                        regex("pcs|pseq|dass|weight|height|tests|hours_worked|morphine|bpi_|hsu|allied_health|ref_count_analg_all"))
+
+#Convert these variables to numeric
+
+outcome_data<- outcome_data %>% mutate_at(vars(numeric_vars), as.numeric)
+
+#date_vars<- stringr::str_subset(names(outcome_data), regex("date|dob"))
+
+#outcome_data<- outcome_data %>% mutate_at(vars(date_vars), lubridate::as_date)
+
+#outcome_data$dob<- eeptools::age_calc(outcome_data$dob, Sys.Date(), units = 'years')
+
+outcome_data<- outcome_data %>% dplyr::mutate_if(~any(c(0, 1, 2, NA) %in% .x) && length(unique(as.numeric(.x))) <= 3, as.numeric)
+
+```
+
+
+```{r}
+
+outcome_data$pain_source<- dplyr::recode(outcome_data$pain_source,
+                                        `1` = "Injury at home",
+                                        `2` = "Injury at work/school",
+                                        `3` = "Injury in another setting",
+                                        `4` = "After surgery",
+                                        `5` = "Motor vehicle crash",
+                                        `6` = "Cancer",
+                                        `7` = "Medical condition other than cancer",
+                                        `8` = "No obvious cause",
+                                        `99` = "Other cause",
+                                        .default = NA_character_
+                                        )
+
+
+outcome_data$pain_duration<- dplyr::recode(outcome_data$pain_duration,
+                                          `1` = "Less than 3 months",
+                                          `2` = "3-12 Months",
+                                          `3` = "12 months-2 years",
+                                          `4` = "2-5 years",
+                                          `5` = "More than 5 years",
+                                          .default = NA_character_
+                                          )
+
+outcome_data$country_of_birth<- dplyr::recode(outcome_data$country_of_birth, `1` = "Australia", 
+                                             `2` = "New Zealand",   `9` = "Other", .default = NA_character_)
+
+#outcome_data$sex<- dplyr::recode(outcome_data$sex, `1` = "Male", `2` = "Female", `3` = "Not stated/described", .default = NA_character_)
+
+outcome_data$state<- dplyr::recode(outcome_data$state, `2` = "Victoria", .default = NA_character_)
+
+outcome_data$referral_source<- dplyr::recode(outcome_data$referral_source, 
+                                            `10` = "GP/Nurse",
+                                            `11` = "Specialist", `12` = "Pain management service",
+                                            `13` = "Public hospital", `14` = "Private hospital",
+                                            `15` = "Rehab provider/private insurer", `99` = "Other",
+                                            .default = NA_character_)
+
+outcome_data$episode_start_mode<- dplyr::recode(outcome_data$episode_start_mode,
+                                               `1` = "Single or multidisciplinary assessment",
+                                               `2` = "Treatment start",
+                                               `3` = "Multidisciplinary assessment and/or treatment",
+                                               `4` = "Single discipline assessment and/or treatment",
+                                               `5` = "Education/orientation program",
+                                               .default = NA_character_)
+
+outcome_data$compensation_case_type<- dplyr::recode(outcome_data$compensation_case_type,
+                                                   `1` = "Workers compensation",
+                                                   `2` = "Public liability compensation",
+                                                   `3` = "Motor vehicle compensation",
+                                                   `9` = "Other compensation",
+                                                   .default = NA_character_)
+
+
+outcome_data$episode_end_mode<- dplyr::recode(outcome_data$episode_end_mode,
+                                             `1` = "Complete - self management/referal to primary care",
+                                             `2` = "Referral to another pain service",
+                                             `3` = "Patient discontinued by choice",
+                                             `4` = "Died",
+                                             `5` = "Complete - Ongoing review",
+                                             `6` = "Referral did not proceed to episode start",
+                                             `7` = "Lost to contact",
+                                             .default = NA_character_
+                                             )
+
+outcome_data$ref_pain_description<- dplyr::recode(outcome_data$ref_pain_description,
+                                                 `1` = "Always present (same intensity)",
+                                                 `2` = "Always present (intensity varies)",
+                                                 `3` = "Often present",
+                                                 `4` = "Occasionally present",
+                                                 `5` = "Rarely present",
+                                                 `6` = "No longer present",
+                                                 .default = NA_character_
+                                                 )
+
+outcome_data$end_pain_description<- dplyr::recode(outcome_data$end_pain_description,
+                                                 `1` = "Always present (same intensity)",
+                                                 `2` = "Always present (intensity varies)",
+                                                 `3` = "Often present",
+                                                 `4` = "Occasionally present",
+                                                 `5` = "Rarely present",
+                                                 `6` = "No longer present",
+                                                 .default = NA_character_
+)
+
+
+outcome_data$ref_bpi_main_pain<- dplyr::recode(outcome_data$ref_bpi_main_pain,
+                                              `51` = "Head",
+                                              `52` = "Face",
+                                              `53` = "Neck",
+                                              `54` = "Left shoulder",
+                                              `55` = "Right shoulder",
+                                              `56` = "Chest",
+                                              `57` = "Left upper arm",
+                                              `58` = "Right upper arm",
+                                              `59` = "Left elbow",
+                                              `60` = "Right elbow",
+                                              `61` = "Left forearm",
+                                              `62` = "Right forearm",
+                                              `63` = "Left wrist",
+                                              `64` = "Right wrist",
+                                              `65` = "Left hand",
+                                              `66` = "Right hand",
+                                              `67` = "Abdomen",
+                                              `68` = "Left hip",
+                                              `69` = "Right hip",
+                                              `70` = "Groin",
+                                              `71` = "Left thigh",
+                                              `72` = "Right thigh",
+                                              `73` = "Left knee",
+                                              `74` = "Right knee",
+                                              `75` = "Left calf",
+                                              `76` = "Right calf",
+                                              `77` = "Left ankle",
+                                              `78` = "Right ankle",
+                                              `79` = "Left foot",
+                                              `80` = "Right foot",
+                                              `81` = "Upper back",
+                                              `82` = "Mid back",
+                                              `83` = "Low back",
+                                              .default = NA_character_
+                                              )
+
+outcome_data$end_bpi_main_pain<- dplyr::recode(outcome_data$end_bpi_main_pain,
+                                              `51` = "Head",
+                                              `52` = "Face",
+                                              `53` = "Neck",
+                                              `54` = "Left shoulder",
+                                              `55` = "Right shoulder",
+                                              `56` = "Chest",
+                                              `57` = "Left upper arm",
+                                              `58` = "Right upper arm",
+                                              `59` = "Left elbow",
+                                              `60` = "Right elbow",
+                                              `61` = "Left forearm",
+                                              `62` = "Right forearm",
+                                              `63` = "Left wrist",
+                                              `64` = "Right wrist",
+                                              `65` = "Left hand",
+                                              `66` = "Right hand",
+                                              `67` = "Abdomen",
+                                              `68` = "Left hip",
+                                              `69` = "Right hip",
+                                              `70` = "Groin",
+                                              `71` = "Left thigh",
+                                              `72` = "Right thigh",
+                                              `73` = "Left knee",
+                                              `74` = "Right knee",
+                                              `75` = "Left calf",
+                                              `76` = "Right calf",
+                                              `77` = "Left ankle",
+                                              `78` = "Right ankle",
+                                              `79` = "Left foot",
+                                              `80` = "Right foot",
+                                              `81` = "Upper back",
+                                              `82` = "Mid back",
+                                              `83` = "Low back",
+                                              .default = NA_character_
+)
+```

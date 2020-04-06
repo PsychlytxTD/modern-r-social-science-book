@@ -1,0 +1,19 @@
+# Manage missing values {#manage_missing_duplicate}
+
+```{r}
+
+#Convert commonly used missing value codes and add some known values used to denote missingness in this
+#dataset.
+
+outcome_data<- outcome_data %>% naniar::replace_with_na_all(condition = ~.x %in% c(naniar::common_na_strings, "-2", "-5", "-4", "-99"))
+
+
+```
+
+Remove empty or duplicate rows and columns
+```{r}
+
+outcome_data<- janitor::remove_empty(outcome_data, which = c("rows", "cols"))
+
+outcome_data<- outcome_data %>% dplyr::distinct(patient_id, .keep_all = TRUE)
+```

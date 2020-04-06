@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 12 Outliers &amp; Leverages | Modern R for Social Science</title>
+  <meta name="description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 12 Outliers &amp; Leverages | Modern R for Social Science" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 12 Outliers &amp; Leverages | Modern R for Social Science" />
+  
+  <meta name="twitter:description" content="Step-by-step modern R code for essential social science research." />
+  
+
+<meta name="author" content="Timothy Deitz" />
+
+
+<meta name="date" content="2020-03-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="section-generate-model-diagnostics.html"/>
+<link rel="next" href="section-cases-exerting-undue-influence-over-model.html"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="/Users/timothydeitz/modern_r_social_science_book/libs/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="section-basic-data-exploration.html"><a href="section-basic-data-exploration.html"><i class="fa fa-check"></i><b>1</b> Basic Data Exploration</a></li>
+<li class="chapter" data-level="2" data-path="section-import-combine-multiple-csv-files.html"><a href="section-import-combine-multiple-csv-files.html"><i class="fa fa-check"></i><b>2</b> Import &amp; Combine Multiple CSV Files</a></li>
+<li class="chapter" data-level="3" data-path="section-tidy-variable-names.html"><a href="section-tidy-variable-names.html"><i class="fa fa-check"></i><b>3</b> Tidy variable names</a></li>
+<li class="chapter" data-level="4" data-path="section-manage-missing-values.html"><a href="section-manage-missing-values.html"><i class="fa fa-check"></i><b>4</b> Manage missing values</a></li>
+<li class="chapter" data-level="5" data-path="section-remove-empty-or-duplicate-rows-and-columns.html"><a href="section-remove-empty-or-duplicate-rows-and-columns.html"><i class="fa fa-check"></i><b>5</b> Remove empty or duplicate rows and columns</a></li>
+<li class="chapter" data-level="6" data-path="section-convert-variables-to-numeric.html"><a href="section-convert-variables-to-numeric.html"><i class="fa fa-check"></i><b>6</b> Convert variables to numeric</a></li>
+<li class="chapter" data-level="7" data-path="section-recode-categorical-variables.html"><a href="section-recode-categorical-variables.html"><i class="fa fa-check"></i><b>7</b> Recode categorical variables</a></li>
+<li class="chapter" data-level="8" data-path="section-drop-variables.html"><a href="section-drop-variables.html"><i class="fa fa-check"></i><b>8</b> Drop variables</a></li>
+<li class="chapter" data-level="9" data-path="section-multiple-linear-regression.html"><a href="section-multiple-linear-regression.html"><i class="fa fa-check"></i><b>9</b> Multiple Linear Regression</a></li>
+<li class="chapter" data-level="10" data-path="section-feature-selection.html"><a href="section-feature-selection.html"><i class="fa fa-check"></i><b>10</b> Feature Selection</a></li>
+<li class="chapter" data-level="11" data-path="section-generate-model-diagnostics.html"><a href="section-generate-model-diagnostics.html"><i class="fa fa-check"></i><b>11</b> Generate Model Diagnostics</a></li>
+<li class="chapter" data-level="12" data-path="section-outliers-leverages.html"><a href="section-outliers-leverages.html"><i class="fa fa-check"></i><b>12</b> Outliers &amp; Leverages</a></li>
+<li class="chapter" data-level="13" data-path="section-cases-exerting-undue-influence-over-model.html"><a href="section-cases-exerting-undue-influence-over-model.html"><i class="fa fa-check"></i><b>13</b> Cases Exerting Undue Influence Over Model</a></li>
+<li class="chapter" data-level="14" data-path="section-linearity-assumption.html"><a href="section-linearity-assumption.html"><i class="fa fa-check"></i><b>14</b> Linearity Assumption</a></li>
+<li class="chapter" data-level="15" data-path="section-no-autocorrelation-correlated-errors.html"><a href="section-no-autocorrelation-correlated-errors.html"><i class="fa fa-check"></i><b>15</b> No Autocorrelation (correlated errors)</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modern R for Social Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section-outliers-leverages" class="section level1">
+<h1><span class="header-section-number">Chapter 12</span> Outliers &amp; Leverages</h1>
+<p><strong>Notes:</strong> Analyses that are based on residuals alone may fail to detect outliers and influential observations due to high leverage points, which tend to have small residuals. Also note that masking occurs when the data contain outliers but we fail to detect them and swamping occurs when we wrongly declare some of the non-outlying points as outliers.</p>
+<p><strong>Actions:</strong> Corrective actions include: correction of error in the data, deletion or down-weighing outliers, transforming the data, considering a different model, and redesigning the experiment or the sample survey, collecting more data.</p>
+<div class="sourceCode" id="section-cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">performance<span class="op">::</span><span class="kw">check_outliers</span>(mod)</a></code></pre></div>
+<pre><code>## OK: No outliers detected.</code></pre>
+<p><strong>Standardised Residuals</strong></p>
+<p><strong>Description:</strong> Residuals divided by an estimate of their standard deviation.</p>
+<p><strong>Assumption:</strong> Approximately 5% of cases can have a value outside the range of -2 to +2.</p>
+<p><strong>Percentage of cases with a standardized residual outside the normative range:</strong>
+4.55%</p>
+<p><strong>Conclusion:</strong> Assumption met</p>
+<p><strong>Plot:</strong> Cases with a standardized residual outside the normative range:</p>
+<div class="sourceCode" id="section-cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">olsrr<span class="op">::</span><span class="kw">ols_plot_resid_stand</span>(mod)</a></code></pre></div>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><strong>Table:</strong> Cases with a standardized residual outside the normative range:</p>
+<div class="sourceCode" id="section-cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">DT<span class="op">::</span><span class="kw">datatable</span>( diagnostics <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(.std_resid_assumption <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>), <span class="dt">options =</span> <span class="kw">list</span>(<span class="dt">scrollX =</span> <span class="ot">TRUE</span>), <span class="dt">rownames =</span> <span class="ot">FALSE</span> )</a></code></pre></div>
+<div id="htmlwidget-2ec24850036df5c33422" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2ec24850036df5c33422">{"x":{"filter":"none","data":[[28,42,64,70,88],[34,6,34,37.3333,0],[9,24.9167,15,37,24],[21,12,33,19,38.8889],[7,8,1.5,5.25,5],[6.1429,7.4286,3.5714,7,2.7143],[8,4,1,8,2],[6,7,1,5,0],[0,8,4,6,0],[1,1,0,0,0],[1,1,0,0,0],[10,0,0,0,68],[4,4,1,0,4],[1,1,2,2,2],[84,62,97,72,72],[16.0621168949673,25.1395285341079,9.96176345149059,20.2945953033065,14.9204938231677],[3.19349926964556,3.16825932772826,2.49288992946779,2.07534914734414,2.8921043202544],[17.9378831050327,-19.1395285341079,24.0382365485094,17.0387046966935,-14.9204938231677],[0.162692837487858,0.160131302289972,0.099138192760365,0.0687095545802922,0.133432830795555],[7.70064468177572,7.66510658968844,7.52284602643371,7.75007308706633,7.78722424532478],[0.08508,0.09476,0.08043,0.02621,0.04507],[2.47597458252267,-2.63780649700495,3.19882817559661,2.23003355606935,-2.02441467663966],[true,true,true,true,true],[2.54566763738239,-2.72462877855765,3.36659864284224,2.27818088853391,-2.05825604924725],[false,false,true,false,false],[false,false,false,false,false],[false,false,false,false,false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.rownames<\/th>\n      <th>ref_dass_depression<\/th>\n      <th>ref_pcs_total<\/th>\n      <th>ref_pseq_total<\/th>\n      <th>ref_bpi_pain_severity<\/th>\n      <th>ref_bpi_pain_interference<\/th>\n      <th>ref_bpi_sleep<\/th>\n      <th>ref_bpi_relations<\/th>\n      <th>ref_bpi_walking<\/th>\n      <th>ref_unemployed_pain<\/th>\n      <th>compensation_case<\/th>\n      <th>ref_daily_morphine<\/th>\n      <th>ref_count_analg_all<\/th>\n      <th>sex<\/th>\n      <th>ref_weight<\/th>\n      <th>.fitted<\/th>\n      <th>.se.fit<\/th>\n      <th>.resid<\/th>\n      <th>.hat<\/th>\n      <th>.sigma<\/th>\n      <th>.cooksd<\/th>\n      <th>.std.resid<\/th>\n      <th>.std_resid_assumption<\/th>\n      <th>.student_resid<\/th>\n      <th>.student_resid_assumption<\/th>\n      <th>.cooksd_assumption<\/th>\n      <th>.leverage_assumption<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,23]}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script>
+<p><strong>Studentised Residuals</strong></p>
+<p><strong>Description:</strong> The difference between the adjusted predicted value (the predicted outcome value for a case when model parameters are estimated without that case, and the mod is then applied to his/her predictor values), and the original observed outcome value, divided by the standard error. Values above 3 indicate outliers.</p>
+<p><strong>Assumption:</strong> Values above 3 indicate outliers.</p>
+<p><strong>Percentage of cases with a standardized residual outside the normative range:</strong>
+0.91%</p>
+<p><strong>Conclusion:</strong> Assumption not met</p>
+<p><strong>Plot:</strong> Cases with a studentised residual outside the normative range:</p>
+<div class="sourceCode" id="section-cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1">olsrr<span class="op">::</span><span class="kw">ols_plot_resid_stud</span>(mod) <span class="op">+</span><span class="st"> </span><span class="kw">scale_y_continuous</span>(<span class="dt">limits=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">5</span>)) <span class="co">#Need to adjust y-scale due to bug in this function</span></a></code></pre></div>
+<pre><code>## Scale for &#39;y&#39; is already present. Adding another scale for &#39;y&#39;, which will
+## replace the existing scale.</code></pre>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre><code>## Warning: Removed 55 rows containing missing values (position_stack).</code></pre>
+<pre><code>## Warning: Removed 3 rows containing missing values (geom_hline).</code></pre>
+<pre><code>## Warning: Removed 1 rows containing missing values (geom_hline).</code></pre>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-18-2.png" width="672" /></p>
+<div class="sourceCode" id="section-cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">olsrr<span class="op">::</span><span class="kw">ols_plot_resid_stud_fit</span>(mod)</a></code></pre></div>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-18-3.png" width="672" /></p>
+<p><strong>Table:</strong>: Cases with a studentised residual outside the normal range</p>
+<div class="sourceCode" id="section-cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">DT<span class="op">::</span><span class="kw">datatable</span>( diagnostics <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(.student_resid_assumption <span class="op">==</span><span class="st"> </span><span class="ot">TRUE</span>), <span class="dt">options =</span> <span class="kw">list</span>(<span class="dt">scrollX =</span> <span class="ot">TRUE</span>), <span class="dt">rownames =</span> <span class="ot">FALSE</span>  )</a></code></pre></div>
+<div id="htmlwidget-9715f14cba0e81f3a06b" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9715f14cba0e81f3a06b">{"x":{"filter":"none","data":[[64],[34],[15],[33],[1.5],[3.5714],[1],[1],[4],[0],[0],[0],[1],[2],[97],[9.96176345149059],[2.49288992946779],[24.0382365485094],[0.099138192760365],[7.52284602643371],[0.08043],[3.19882817559661],[true],[3.36659864284224],[true],[false],[false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>.rownames<\/th>\n      <th>ref_dass_depression<\/th>\n      <th>ref_pcs_total<\/th>\n      <th>ref_pseq_total<\/th>\n      <th>ref_bpi_pain_severity<\/th>\n      <th>ref_bpi_pain_interference<\/th>\n      <th>ref_bpi_sleep<\/th>\n      <th>ref_bpi_relations<\/th>\n      <th>ref_bpi_walking<\/th>\n      <th>ref_unemployed_pain<\/th>\n      <th>compensation_case<\/th>\n      <th>ref_daily_morphine<\/th>\n      <th>ref_count_analg_all<\/th>\n      <th>sex<\/th>\n      <th>ref_weight<\/th>\n      <th>.fitted<\/th>\n      <th>.se.fit<\/th>\n      <th>.resid<\/th>\n      <th>.hat<\/th>\n      <th>.sigma<\/th>\n      <th>.cooksd<\/th>\n      <th>.std.resid<\/th>\n      <th>.std_resid_assumption<\/th>\n      <th>.student_resid<\/th>\n      <th>.student_resid_assumption<\/th>\n      <th>.cooksd_assumption<\/th>\n      <th>.leverage_assumption<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,23]}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row"}},"evals":[],"jsHooks":[]}</script>
+<p><strong>Leverages</strong></p>
+<p><strong>Description</strong>: Outliers can also occur in the predictor variables (the X-space). They can affect the regression results.</p>
+<p><strong>Assumption</strong>: 2 * (( p + 1 ) / n) (twice the average value)</p>
+<p><strong>Actions</strong>: High leverage points that are influential should be investigated because these points are outlying as far as the predictor variables are concerned and also influence the fit. To get an idea of the sensitivity of the analysis to these points, the model should be fitted without the offending points and the resulting coefficients examined.</p>
+<p><strong>Plot:</strong> Studentized Residuals vs Leverage Plot</p>
+<div class="sourceCode" id="section-cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">olsrr<span class="op">::</span><span class="kw">ols_plot_resid_lev</span>(mod)</a></code></pre></div>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="section-generate-model-diagnostics.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="section-cases-exerting-undue-influence-over-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/%s",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

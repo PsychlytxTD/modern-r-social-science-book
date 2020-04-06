@@ -1,0 +1,160 @@
+# Feature Selection {#feature_selection}
+
+```{r}
+#Function to format p values to five decimal places (i.e. remove scientific notation)
+
+format_p_val<- function(p_val_column) {
+round(as.numeric(format(p_val_column, scientific = FALSE)), 5)
+}
+
+```
+
+```{r}
+#drop all variables that contain a digit (because I don't need item-level questionnaire data).
+
+item_vars<- stringr::str_subset(names(outcome_data), regex("q_\\d+"))
+outcome_data<- outcome_data %>% select(!!-any_vars(item_vars))
+
+#Drop variables that have only one value 
+outcome_data<- outcome_data %>% purrr::keep(~length(unique(.x)) >= 2)
+
+#Drop variables with over 50% of responses missing
+outcome_data<- outcome_data %>% discard(~mean(is.na(.x)) >= .5) 
+
+#Drop miscellaneous variables that I don't kneed
+
+outcome_data<- outcome_data %>% dplyr::select(-state, -episode_id, -torres_strait_isl, -ref_comp_status, -end_height, -end_weight,-contains("interpreter"), -contains("hours_worked"), -contains("survey_category_id"), -contains("end"), #exclude all time 2 variables 
+                                      -contains("survey_schedule_id"), -contains("key"),
+                                      -contains("retraining"), -contains("opioid_maint"),
+                                      -contains("ref_voluntary"), -contains("count_analg_ex_opi"))
+```
+
+
+How do we go about selecting variables for analysis? In the field of social science research, chances are that you will use theory to govern variable selection. For example, "there is evidence that people who have experienced a workplace or transport accident experience higher levels of depression than those with pain of different origin". Thus, I include a binary variable - *compensation_case* in the regression model. 
+
+But you're looking to produce an interesting thesis or develop a useful model, you'll want to include variables that are in fact related to the outcome that interests you. In other words, you don't just want to throw in a bunch of variables and hope for the best. So here is a hierarchical approach to variable selection when conducting multiple linear regression.
+
+
+Generate a list of correlations above .3 between every possible pair of numeric variables. Guided by your knowledge of the literature, take note of interesting pairs of variables.
+
+```{r}
+#Function that produces scatterplots for all pairs of numerica vars
+
+show_all_scatterplots<- function(df) {
+  
+  df<- dplyr::select_if(df, is.numeric)
+  
+  #Create a two-column dataframe with all possible pairs of numeric variable names
+  
+  numeric_pairs<- tibble::tibble(x_variable = names(df), 
+                                 y_variable = x_variable) %>% expand.grid() 
+  
+  #Iterate over the two columns of numeric variable names we've created and use them 
+  #to select variable from mtcars programatically
+  
+  plot_list<- purrr::map2(numeric_pairs$x_variable, numeric_pairs$y_variable, ~ { 
+    
+    #Create linear models for each pair of variables — required for fitting a line 
+    #to each plot
+    
+    model<- lm(df[[.y]] ~ df[[.x]], data = df)
+    
+    #Create the plotly base for the plot. Programmatic mapping in plotly requires us 
+    #to specify variables using square bracket notation, rather than the 
+    #usual x = ~x, y = ~y. I don't know why.
+    
+    plotting_df<- tibble::tibble(x_plot_var = df[[.x]], y_plot_var = df[[.y]]) %>% dplyr::filter(complete.cases(.)) 
+    
+    plot_ly(plotting_df, x = ~x_plot_var, y = ~y_plot_var) %>%
+      add_markers(x = ~jitter(x_plot_var), y = ~jitter(y_plot_var), opacity = 0.5, showlegend = FALSE) %>%
+      
+      #Add the line of best fit to each plot
+      
+      add_lines(y = ~fitted(model))  %>% 
+      layout(title = paste0(.x, " vs ", .y,":", " 
+                            Correlation = ", round(cor(df[[.x]],
+                                                       df[[.y]], use = "pairwise.complete.obs"), 2)),
+                                            xaxis = list(title = paste(.x)),
+                                            yaxis = list(title = paste(.y))) %>% config(displayModeBar = F)
+  })
+  
+  plot_names<- numeric_pairs %>% tidyr::unite("plot_labels", x_variable:y_variable, sep = "AND", remove = TRUE) %>% dplyr::pull(plot_labels)
+  
+  plot_list<- plot_list %>% purrr::set_names(plot_names)
+  
+}
+
+```
+
+```{r}
+
+find_correlations<- function(df) {
+  
+  numeric_data<- dplyr::select_if(df, is.numeric)
+  
+  numeric_var_names<- rlang::syms(names(numeric_data))
+  
+  correlations<- corrr::correlate(numeric_data)
+  
+  correlation_by_var_list<- purrr::map(numeric_var_names, ~{corrr::focus(correlations, !!.x) %>% 
+      dplyr::filter(!!.x >= 0.3 | !!.x <= -0.3) %>% dplyr::arrange(desc(!!.x))})
+  
+  corelation_by_var_list<- correlation_by_var_list %>% purrr::set_names(names(numeric_data))
+}
+
+```
+
+```{r}
+
+correlations_above_.3<- find_correlations(outcome_data)
+
+correlations_above_.3
+
+```
+
+Because raw numbers can be misleading, we want to visualise variables of interest. If you only have a few variables, use `corrplot::corrplot()` to display all pairwise correlations.
+
+```{r}
+
+#First generate the correlation matrix. We want pairwise complete cases - otherwise, only cases complete for 
+#all variables will be used. And this number could be very small
+
+vars_of_interest<- stats::cor(outcome_data %>% dplyr::select(ref_pcs_total, ref_pseq_total, ref_bpi_pain_severity, ref_bpi_pain_interference, ref_bpi_sleep, ref_bpi_relations, ref_bpi_walking, ref_unemployed_pain, compensation_case), use = "pairwise.complete.obs")
+
+#Generate a matrix of p-values for this correlation grid
+
+pairwise_correlations<- corrplot::cor.mtest(vars_of_interest, conf.level = .95)
+
+#Use the p-value matrix to generate a plot that crosses out non-significant correlations
+
+corrplot::corrplot(vars_of_interest, p.mat = pairwise_correlations$p, sig.level = .2)
+
+```
+
+If you already know what your outcome variable will be, you can save time by generating all possible
+pairwise correlations with that variable, and then retaining only those with a p-value under .05.
+
+```{r}
+#Imagine that depression is out outcome variable
+
+sig_correlations_depression<- rstatix::cor_test(dplyr::select_if(outcome_data, is.numeric)) %>% dplyr::filter(var1 == "ref_dass_depression", p < .05) %>% dplyr::arrange(cor) %>% dplyr::mutate(p = format_p_val(p))
+
+sig_correlations_depression
+
+```
+
+While it is good to efficiently scan raw numbers and summary plots, we need to follow up any interesting correlations with a scatterplot. P-values can be misleading. 
+
+This function generates a list of all possible scatterplots.
+
+```{r}
+
+scatterplot_list<- show_all_scatterplots(dplyr::select(outcome_data, -ref_dass_depression))
+
+#Subset the list to look at any pair of variables, separated by the workd "AND"
+#E.g.
+
+scatterplot_list[["ref_bpi_sleepANDref_bpi_relations"]]
+
+
+```

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 15 No Autocorrelation (correlated errors) | Modern R for Social Science</title>
+  <meta name="description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 15 No Autocorrelation (correlated errors) | Modern R for Social Science" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 15 No Autocorrelation (correlated errors) | Modern R for Social Science" />
+  
+  <meta name="twitter:description" content="Step-by-step modern R code for essential social science research." />
+  
+
+<meta name="author" content="Timothy Deitz" />
+
+
+<meta name="date" content="2020-03-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="section-linearity-assumption.html"/>
+
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="/Users/timothydeitz/modern_r_social_science_book/libs/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="section-basic-data-exploration.html"><a href="section-basic-data-exploration.html"><i class="fa fa-check"></i><b>1</b> Basic Data Exploration</a></li>
+<li class="chapter" data-level="2" data-path="section-import-combine-multiple-csv-files.html"><a href="section-import-combine-multiple-csv-files.html"><i class="fa fa-check"></i><b>2</b> Import &amp; Combine Multiple CSV Files</a></li>
+<li class="chapter" data-level="3" data-path="section-tidy-variable-names.html"><a href="section-tidy-variable-names.html"><i class="fa fa-check"></i><b>3</b> Tidy variable names</a></li>
+<li class="chapter" data-level="4" data-path="section-manage-missing-values.html"><a href="section-manage-missing-values.html"><i class="fa fa-check"></i><b>4</b> Manage missing values</a></li>
+<li class="chapter" data-level="5" data-path="section-remove-empty-or-duplicate-rows-and-columns.html"><a href="section-remove-empty-or-duplicate-rows-and-columns.html"><i class="fa fa-check"></i><b>5</b> Remove empty or duplicate rows and columns</a></li>
+<li class="chapter" data-level="6" data-path="section-convert-variables-to-numeric.html"><a href="section-convert-variables-to-numeric.html"><i class="fa fa-check"></i><b>6</b> Convert variables to numeric</a></li>
+<li class="chapter" data-level="7" data-path="section-recode-categorical-variables.html"><a href="section-recode-categorical-variables.html"><i class="fa fa-check"></i><b>7</b> Recode categorical variables</a></li>
+<li class="chapter" data-level="8" data-path="section-drop-variables.html"><a href="section-drop-variables.html"><i class="fa fa-check"></i><b>8</b> Drop variables</a></li>
+<li class="chapter" data-level="9" data-path="section-multiple-linear-regression.html"><a href="section-multiple-linear-regression.html"><i class="fa fa-check"></i><b>9</b> Multiple Linear Regression</a></li>
+<li class="chapter" data-level="10" data-path="section-feature-selection.html"><a href="section-feature-selection.html"><i class="fa fa-check"></i><b>10</b> Feature Selection</a></li>
+<li class="chapter" data-level="11" data-path="section-generate-model-diagnostics.html"><a href="section-generate-model-diagnostics.html"><i class="fa fa-check"></i><b>11</b> Generate Model Diagnostics</a></li>
+<li class="chapter" data-level="12" data-path="section-outliers-leverages.html"><a href="section-outliers-leverages.html"><i class="fa fa-check"></i><b>12</b> Outliers &amp; Leverages</a></li>
+<li class="chapter" data-level="13" data-path="section-cases-exerting-undue-influence-over-model.html"><a href="section-cases-exerting-undue-influence-over-model.html"><i class="fa fa-check"></i><b>13</b> Cases Exerting Undue Influence Over Model</a></li>
+<li class="chapter" data-level="14" data-path="section-linearity-assumption.html"><a href="section-linearity-assumption.html"><i class="fa fa-check"></i><b>14</b> Linearity Assumption</a></li>
+<li class="chapter" data-level="15" data-path="section-no-autocorrelation-correlated-errors.html"><a href="section-no-autocorrelation-correlated-errors.html"><i class="fa fa-check"></i><b>15</b> No Autocorrelation (correlated errors)</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modern R for Social Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section-no-autocorrelation-correlated-errors" class="section level1">
+<h1><span class="header-section-number">Chapter 15</span> No Autocorrelation (correlated errors)</h1>
+<div class="sourceCode" id="section-cb71"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb71-1" data-line-number="1"><span class="co">#Durbin-Watson result between 1.5 and 2.5 indicates, that any autocorrelation in the data will #not have a discernible effect on estimates</span></a>
+<a class="sourceLine" id="cb71-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb71-3" data-line-number="3">lmtest<span class="op">::</span><span class="kw">dwtest</span>(mod)</a></code></pre></div>
+<pre><code>## 
+##  Durbin-Watson test
+## 
+## data:  mod
+## DW = 2.2649, p-value = 0.923
+## alternative hypothesis: true autocorrelation is greater than 0</code></pre>
+<div class="sourceCode" id="section-cb73"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb73-1" data-line-number="1"><span class="co">#Autocorrelation not a problem here</span></a></code></pre></div>
+<div class="sourceCode" id="section-cb74"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb74-1" data-line-number="1"><span class="co">#Another plot we can use to view autocorrelation</span></a>
+<a class="sourceLine" id="cb74-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb74-3" data-line-number="3"><span class="co">#If the residuals were not autocorrelated, the correlation (Y-axis) from the immediate next line onwards will drop to a near zero value below the dashed blue line (significance level).</span></a>
+<a class="sourceLine" id="cb74-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb74-5" data-line-number="5">stats<span class="op">::</span><span class="kw">acf</span>(diagnostics<span class="op">$</span>.resid)</a></code></pre></div>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<div class="sourceCode" id="section-cb75"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb75-1" data-line-number="1"><span class="co">#Again, confirmation that autocorrelation isn&#39;t a problem</span></a></code></pre></div>
+<div class="sourceCode" id="section-cb76"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb76-1" data-line-number="1"><span class="co">#Runs test to test for randomness</span></a>
+<a class="sourceLine" id="cb76-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb76-3" data-line-number="3">lawstat<span class="op">::</span><span class="kw">runs.test</span>(diagnostics<span class="op">$</span>.resid)</a></code></pre></div>
+<pre><code>## 
+##  Runs Test - Two sided
+## 
+## data:  diagnostics$.resid
+## Standardized Runs Statistic = 0.38315, p-value = 0.7016</code></pre>
+<div class="sourceCode" id="section-cb78"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb78-1" data-line-number="1"><span class="co">#Not significant, autocorrelation isn&#39;t a problem</span></a></code></pre></div>
+<p>#Predictors and Residuals are not Correlated</p>
+<div class="sourceCode" id="section-cb79"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb79-1" data-line-number="1">performance<span class="op">::</span><span class="kw">check_autocorrelation</span>(mod)</a></code></pre></div>
+<pre><code>## OK: Residuals appear to be independent and not autocorrelated (p = 0.170).</code></pre>
+<div class="sourceCode" id="section-cb81"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb81-1" data-line-number="1"><span class="co">#Run a correlation analysis for each predictor vs. residuals</span></a>
+<a class="sourceLine" id="cb81-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb81-3" data-line-number="3"> dplyr<span class="op">::</span><span class="kw">select</span>(complete_mod_data, <span class="op">-</span>ref_dass_depression) <span class="op">%&gt;%</span><span class="st"> </span>purrr<span class="op">::</span><span class="kw">map</span>(<span class="op">~</span>{</a>
+<a class="sourceLine" id="cb81-4" data-line-number="4">   </a>
+<a class="sourceLine" id="cb81-5" data-line-number="5">   stats<span class="op">::</span><span class="kw">cor.test</span>(.x, diagnostics<span class="op">$</span>.resid)</a>
+<a class="sourceLine" id="cb81-6" data-line-number="6">   </a>
+<a class="sourceLine" id="cb81-7" data-line-number="7"> })</a></code></pre></div>
+<pre><code>## $ref_pcs_total
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 4.2996e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 4.137309e-17 
+## 
+## 
+## $ref_pseq_total
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = -3.9942e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##           cor 
+## -3.843397e-17 
+## 
+## 
+## $ref_bpi_pain_severity
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = -4.7673e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##           cor 
+## -4.587374e-17 
+## 
+## 
+## $ref_bpi_pain_interference
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 2.0621e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##         cor 
+## 1.98424e-17 
+## 
+## 
+## $ref_bpi_sleep
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 1.6506e-15, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 1.588299e-16 
+## 
+## 
+## $ref_bpi_relations
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 2.6271e-15, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 2.527902e-16 
+## 
+## 
+## $ref_bpi_walking
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 2.3193e-15, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 2.231793e-16 
+## 
+## 
+## $ref_unemployed_pain
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 7.5472e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 7.262254e-17 
+## 
+## 
+## $compensation_case
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = -3.3848e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##           cor 
+## -3.257068e-17 
+## 
+## 
+## $ref_daily_morphine
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 7.0474e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 6.781338e-17 
+## 
+## 
+## $ref_count_analg_all
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = 1.3434e-15, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##          cor 
+## 1.292664e-16 
+## 
+## 
+## $sex
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = -1.5154e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##           cor 
+## -1.458182e-17 
+## 
+## 
+## $ref_weight
+## 
+##  Pearson&#39;s product-moment correlation
+## 
+## data:  .x and diagnostics$.resid
+## t = -5.7281e-16, df = 108, p-value = 1
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  -0.1872415  0.1872415
+## sample estimates:
+##           cor 
+## -5.511889e-17</code></pre>
+<div class="sourceCode" id="section-cb83"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb83-1" data-line-number="1"><span class="co">#P-value = 1 for all predictor-residual correlations. So assumption is met.</span></a></code></pre></div>
+<p>#No Perfect Multicollinearity</p>
+<div class="sourceCode" id="section-cb84"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb84-1" data-line-number="1">performance<span class="op">::</span><span class="kw">check_collinearity</span>(mod)</a></code></pre></div>
+<pre><code>## # Check for Multicollinearity
+## 
+## Low Correlation
+## 
+##              Parameter  VIF Increased SE
+##          ref_pcs_total 1.99         1.41
+##         ref_pseq_total 2.69         1.64
+##  ref_bpi_pain_severity 1.69         1.30
+##          ref_bpi_sleep 3.36         1.83
+##        ref_bpi_walking 2.21         1.49
+##    ref_unemployed_pain 1.30         1.14
+##      compensation_case 1.55         1.25
+##     ref_daily_morphine 1.23         1.11
+##    ref_count_analg_all 1.22         1.11
+##                    sex 1.23         1.11
+##             ref_weight 1.17         1.08
+## 
+## Moderate Correlation
+## 
+##          Parameter  VIF Increased SE
+##  ref_bpi_relations 5.54         2.35
+## 
+## High Correlation
+## 
+##                  Parameter   VIF Increased SE
+##  ref_bpi_pain_interference 13.00         3.61</code></pre>
+<div class="sourceCode" id="section-cb86"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb86-1" data-line-number="1"><span class="co">#It&#39;s obvious that pain_interference is a problematic variable, because it correlates highly with many predictors</span></a></code></pre></div>
+<div class="sourceCode" id="section-cb87"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb87-1" data-line-number="1"><span class="co">#Values should be between 0 and 4</span></a>
+<a class="sourceLine" id="cb87-2" data-line-number="2">car<span class="op">::</span><span class="kw">vif</span>(mod)</a></code></pre></div>
+<pre><code>##             ref_pcs_total            ref_pseq_total     ref_bpi_pain_severity 
+##                  1.990247                  2.693752                  1.687817 
+## ref_bpi_pain_interference             ref_bpi_sleep         ref_bpi_relations 
+##                 13.003253                  3.358341                  5.543662 
+##           ref_bpi_walking       ref_unemployed_pain         compensation_case 
+##                  2.210345                  1.301895                  1.554023 
+##        ref_daily_morphine       ref_count_analg_all                       sex 
+##                  1.231744                  1.222364                  1.227491 
+##                ref_weight 
+##                  1.173638</code></pre>
+<p>`</p>
+<div class="sourceCode" id="section-cb89"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb89-1" data-line-number="1">correlations_above_.<span class="dv">3</span></a></code></pre></div>
+<pre><code>## $ref_pcs_total
+## # A tibble: 6 x 2
+##   rowname                   ref_pcs_total
+##   &lt;chr&gt;                             &lt;dbl&gt;
+## 1 ref_bpi_pain_interference         0.573
+## 2 ref_bpi_relations                 0.532
+## 3 compensation_case                 0.421
+## 4 ref_bpi_sleep                     0.390
+## 5 ref_bpi_pain_severity             0.386
+## 6 ref_pseq_total                   -0.575
+## 
+## $ref_pseq_total
+## # A tibble: 7 x 2
+##   rowname                   ref_pseq_total
+##   &lt;chr&gt;                              &lt;dbl&gt;
+## 1 ref_bpi_walking                   -0.308
+## 2 ref_bpi_sleep                     -0.391
+## 3 ref_bpi_pain_severity             -0.395
+## 4 compensation_case                 -0.446
+## 5 ref_pcs_total                     -0.575
+## 6 ref_bpi_relations                 -0.671
+## 7 ref_bpi_pain_interference         -0.698
+## 
+## $ref_bpi_pain_severity
+## # A tibble: 6 x 2
+##   rowname                   ref_bpi_pain_severity
+##   &lt;chr&gt;                                     &lt;dbl&gt;
+## 1 ref_bpi_sleep                             0.576
+## 2 ref_bpi_pain_interference                 0.503
+## 3 ref_bpi_relations                         0.432
+## 4 ref_pcs_total                             0.386
+## 5 compensation_case                         0.302
+## 6 ref_pseq_total                           -0.395
+## 
+## $ref_bpi_pain_interference
+## # A tibble: 7 x 2
+##   rowname               ref_bpi_pain_interference
+##   &lt;chr&gt;                                     &lt;dbl&gt;
+## 1 ref_bpi_relations                         0.883
+## 2 ref_bpi_sleep                             0.707
+## 3 ref_bpi_walking                           0.628
+## 4 ref_pcs_total                             0.573
+## 5 ref_bpi_pain_severity                     0.503
+## 6 compensation_case                         0.426
+## 7 ref_pseq_total                           -0.698
+## 
+## $ref_bpi_sleep
+## # A tibble: 5 x 2
+##   rowname                   ref_bpi_sleep
+##   &lt;chr&gt;                             &lt;dbl&gt;
+## 1 ref_bpi_pain_interference         0.707
+## 2 ref_bpi_pain_severity             0.576
+## 3 ref_bpi_relations                 0.527
+## 4 ref_pcs_total                     0.390
+## 5 ref_pseq_total                   -0.391
+## 
+## $ref_bpi_relations
+## # A tibble: 7 x 2
+##   rowname                   ref_bpi_relations
+##   &lt;chr&gt;                                 &lt;dbl&gt;
+## 1 ref_bpi_pain_interference             0.883
+## 2 ref_bpi_walking                       0.534
+## 3 ref_pcs_total                         0.532
+## 4 ref_bpi_sleep                         0.527
+## 5 compensation_case                     0.443
+## 6 ref_bpi_pain_severity                 0.432
+## 7 ref_pseq_total                       -0.671
+## 
+## $ref_bpi_walking
+## # A tibble: 3 x 2
+##   rowname                   ref_bpi_walking
+##   &lt;chr&gt;                               &lt;dbl&gt;
+## 1 ref_bpi_pain_interference           0.628
+## 2 ref_bpi_relations                   0.534
+## 3 ref_pseq_total                     -0.308
+## 
+## $ref_unemployed_pain
+## # A tibble: 0 x 2
+## # … with 2 variables: rowname &lt;chr&gt;, ref_unemployed_pain &lt;dbl&gt;
+## 
+## $compensation_case
+## # A tibble: 5 x 2
+##   rowname                   compensation_case
+##   &lt;chr&gt;                                 &lt;dbl&gt;
+## 1 ref_bpi_relations                     0.443
+## 2 ref_bpi_pain_interference             0.426
+## 3 ref_pcs_total                         0.421
+## 4 ref_bpi_pain_severity                 0.302
+## 5 ref_pseq_total                       -0.446
+## 
+## $ref_daily_morphine
+## # A tibble: 1 x 2
+##   rowname             ref_daily_morphine
+##   &lt;chr&gt;                            &lt;dbl&gt;
+## 1 ref_count_analg_all              0.310
+## 
+## $ref_count_analg_all
+## # A tibble: 1 x 2
+##   rowname            ref_count_analg_all
+##   &lt;chr&gt;                            &lt;dbl&gt;
+## 1 ref_daily_morphine               0.310
+## 
+## $sex
+## # A tibble: 0 x 2
+## # … with 2 variables: rowname &lt;chr&gt;, sex &lt;dbl&gt;
+## 
+## $ref_weight
+## # A tibble: 0 x 2
+## # … with 2 variables: rowname &lt;chr&gt;, ref_weight &lt;dbl&gt;</code></pre>
+<div class="sourceCode" id="section-cb91"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb91-1" data-line-number="1">performance<span class="op">::</span><span class="kw">check_model</span>(mod)</a></code></pre></div>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<pre><code>## Warning: Removed 110 rows containing missing values (geom_text_repel).</code></pre>
+<p><img src="/Users/timothydeitz/modern_r_social_science_book/libs//private/var/folders/jd/0_ns_gdx39l9x4_qphjmvz700000gn/T/timothydeitz/rmarkdown/589c13039a36e41b5c85aa475bcbf842/rmd_589c13039a36e41b5c85aa475bcbf842_files/figure-html/unnamed-chunk-44-1.png" width="672" /></p>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="section-linearity-assumption.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/%s",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+--- 
+title: "Modern R for Social Science"
+author: "Timothy Deitz"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::gitbook: default
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "Step-by-step modern R code for essential social science research."
+---
+# Load Required Packages {#package_load}
+
+```{r setup, warning = FALSE, message = FALSE}
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(reticulate)
+library(tidyverse)
+library(magrittr)
+library(broom)
+library(broomExtra)
+library(lmtest)
+library(lubridate)
+library(skimr)
+library(DataExplorer)
+library(naniar)
+library(janitor)
+library(fs)
+library(here)
+library(readr)
+library(magrittr)
+library(glue)
+library(plotly)
+library(stats)
+library(lmtest)
+library(lawstat)
+library(car)
+library(purrr)
+library(performance)
+library(effsize)
+library(rstatix)
+library(Metrics)
+library(see)
+library(olsrr)
+library(shiny)
+library(corrplot)
+
+```
+
+
+
+
+
+
+
+

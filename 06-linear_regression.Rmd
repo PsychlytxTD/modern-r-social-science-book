@@ -1,0 +1,419 @@
+# Multiple Linear Regression {#linear_regression}
+
+
+```{r}
+
+#Run the mod
+mod<- lm(ref_dass_depression ~ ref_pcs_total + ref_pseq_total + ref_bpi_pain_severity + ref_bpi_pain_interference + ref_bpi_sleep + ref_bpi_relations + ref_bpi_walking + ref_unemployed_pain + compensation_case + ref_daily_morphine + ref_count_analg_all + sex + ref_weight, data = outcome_data)
+
+#Get only the variables we used to specify the model
+mod_vars<- outcome_data %>% dplyr::select(base::all.vars(mod$call)[1], names(mod$coefficients[-1]))
+
+
+#Of the model variables, only retain rows that are complete. This will be equal to the data that was
+#used in the regression call (only complete cases). 
+#We'll use this complete data later.
+
+complete_mod_data<- mod_vars %>% tidyr::drop_na()
+#In base R, use: complete_mod_data<- mod_vars[which(complete.cases(mod_vars)), ]
+
+
+#all.vars() returns all the variables contained in an expression or call (i.e. lm())
+#base::all.vars(mod$call)[1] gives us only the name of the outcome variable
+#And names(mod$coefficients[-1]) gives us the names of all the predictor variables
+
+
+# Get table of coefficients, format p-values, retain only those less than .05, remove intercept from display.
+tidied_mod<- broomExtra::tidy_parameters(mod) %>% dplyr::mutate(p.value = format_p_val(p.value)) %>% dplyr::filter(p.value < .05, term != "(Intercept)") %>% dplyr::arrange(desc(estimate))
+
+tidied_mod
+
+#glue::glue("For each 1-point increase in {tidied_mod$term} there is a change in depression of #{round(tidied_mod$estimate, 2)} units (with a p-value of {round(tidied_mod$p.value, 6)})")
+
+```
+
+
+Generate Model Diagnostics
+
+```{r}
+
+#The augment function provides range of model diagnostics.
+#Add diagnostic variables, adjusting the format where necessary so that everything can be 
+#stored in a single dataframe.
+
+diagnostics<- broom::augment(mod) %>% 
+  mutate(.std_resid_assumption = .std.resid > 2 | .std.resid < -2,
+         .student_resid = unname(stats::rstudent(mod)),
+         .student_resid_assumption = .student_resid > 3 | .student_resid < -3,
+         .cooksd = format_p_val(.cooksd), #Remove scientific notation to make these values readable
+         .cooksd_assumption = .cooksd > 1,
+         .leverage_assumption = .hat > (2 * ncol(complete_mod_data) / nrow(complete_mod_data)),
+         .rownames = 1:nrow(complete_mod_data) #We want to be able to identify the row numbers of the complete data, not the raw data.
+                  )
+
+
+```
+
+
+Outliers & Leverages
+
+**Notes:** Analyses that are based on residuals alone may fail to detect outliers and influential observations due to high leverage points, which tend to have small residuals. Also note that masking occurs when the data contain outliers but we fail to detect them and swamping occurs when we wrongly declare some of the non-outlying points as outliers.
+
+**Actions:** Corrective actions include: correction of error in the data, deletion or down-weighing outliers, transforming the data, considering a different model, and redesigning the experiment or the sample survey, collecting more data.
+
+
+```{r}
+performance::check_outliers(mod)
+```
+
+
+**Standardised Residuals**
+
+**Description:** Residuals divided by an estimate of their standard deviation.
+
+**Assumption:** Approximately 5% of cases can have a value outside the range of -2 to +2.
+
+**Percentage of cases with a standardized residual outside the normative range:** 
+`r paste0( round(sum((diagnostics$.std_resid_assumption)/nrow(diagnostics) * 100), 2), "%")`
+
+**Conclusion:** `r ifelse(round(sum((diagnostics$.std_resid_assumption)/nrow(diagnostics) * 100), 2) <= 5, "Assumption met", "Assumption not met")`
+
+**Plot:** Cases with a standardized residual outside the normative range:
+
+```{r}
+olsrr::ols_plot_resid_stand(mod)
+
+```
+
+**Table:** Cases with a standardized residual outside the normative range:
+
+```{r}
+DT::datatable( diagnostics %>% dplyr::filter(.std_resid_assumption == TRUE), options = list(scrollX = TRUE), rownames = FALSE )
+```
+
+**Studentised Residuals**
+
+**Description:** The difference between the adjusted predicted value (the predicted outcome value for a case when model parameters are estimated without that case, and the mod is then applied to his/her predictor values), and the original observed outcome value, divided by the standard error. Values above 3 indicate outliers.
+
+**Assumption:** Values above 3 indicate outliers.
+
+**Percentage of cases with a standardized residual outside the normative range:** 
+`r paste0( round(sum( (diagnostics$.student_resid_assumption)/nrow(diagnostics) * 100), 2), "%")`
+
+**Conclusion:** `r ifelse(any(diagnostics$.student_resid_assumption) == TRUE, "Assumption not met", "Assumption met")`
+
+**Plot:** Cases with a studentised residual outside the normative range:
+
+```{r}
+
+olsrr::ols_plot_resid_stud(mod) + scale_y_continuous(limits=c(0,5)) #Need to adjust y-scale due to bug in this function
+
+olsrr::ols_plot_resid_stud_fit(mod)
+
+```
+
+**Table:**: Cases with a studentised residual outside the normal range
+
+```{r}
+DT::datatable( diagnostics %>% dplyr::filter(.student_resid_assumption == TRUE), options = list(scrollX = TRUE), rownames = FALSE  )
+```
+
+
+**Leverages**
+
+**Description**: Outliers can also occur in the predictor variables (the X-space). They can affect the regression results.
+
+**Assumption**: 2 * (( p + 1 ) / n) (twice the average value)
+
+**Actions**: High leverage points that are influential should be investigated because these points are outlying as far as the predictor variables are concerned and also influence the fit. To get an idea of the sensitivity of the analysis to these points, the model should be fitted without the offending points and the resulting coefficients examined.
+
+**Plot:** Studentized Residuals vs Leverage Plot
+
+```{r}
+olsrr::ols_plot_resid_lev(mod)
+```
+
+
+Cases Exerting Undue Influence Over Model
+
+**Notes:** A point is influential if its deletion, singly or in combination with others (two or three), causes substantial changes in the fitted model (estimated coefficients, fitted values, t-tests, etc.).*
+
+**Cooks Distance**
+
+**Description:**  Measures the difference between the regression coefficients obtained from the full data and the regression coefficients obtained by deleting the ith observation, or equivalently, the difference between the fitted values obtained from the full data and the fitted values obtained by deleting the ith observation
+
+**Assumption**: Cases exceeding 1 or 4/(n-p-1)
+
+```{r}
+
+olsrr::ols_plot_cooksd_bar(mod)
+
+olsrr::ols_plot_cooksd_chart(mod)
+```
+
+**Table:**
+```{r}
+
+DT::datatable( olsrr::ols_plot_cooksd_bar(mod, print_plot = FALSE)$outliers, options = list(scrollX = TRUE), rownames = FALSE )
+
+```
+
+
+**Dfbeta**
+
+**Description:** Measures the difference in each parameter estimate with and without the influential point. 
+
+**Assumption:** Belsley, Kuh, and Welsch recommend 2 as a general cutoff value to indicate influential observations and 2/sqrt(n) as a size-adjusted cutoff.
+
+```{r}
+olsrr::ols_plot_dfbetas(mod)
+```
+
+**Dffits**
+
+**Description** The scaled difference between the ith fitted value obtained from the full data and the ith fitted value obtained by deleting the ith observation. Quantifies the number of standard deviations that the fitted value changes when the ith data point is omitted.
+
+**Assumption:** An observation is deemed influential if the absolute value of its DFFITS value is greater than: 2 * sqrt( (p + 1)/(n-p-1) )
+
+```{r}
+olsrr::ols_plot_dffits(mod)
+```
+
+
+**Hadi's Plot**
+
+**Description:** Hadi’s measure of influence based on the fact that influential observations can be present in either the response variable or in the predictors or both. 
+
+```{r}
+olsrr::ols_plot_hadi(mod)
+```
+
+
+Linearity Assumption
+
+**Description:** Outcome Values can be Expressed as a Linear Function of Predictor Variables
+
+**Actions**: When the linearity assumption does not hold, transformation of the data can sometimes lead to linearity.
+
+```{r message = FALSE, warning = FALSE}
+
+#sjPlot::plot_residuals(mod)
+
+#Can also write code
+pred_vs_resid_plots<- diagnostics %>% tidyr::gather(variable, value, -contains(".")) %>%
+  ggplot(aes(value, .resid)) +
+  geom_point() + geom_hline(yintercept = 0, colour = "red") + geom_smooth() + facet_wrap(~variable, scales = "free") +
+  labs(x = "Predictor Value", y = "Residual") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+pred_vs_resid_plots
+
+```
+
+
+```{r}
+
+#Square each predictor term and include these terms in the model to further clarify the presence of non-linear relationships
+
+squared_vars<- mod_vars %>% dplyr::mutate_all(funs(.^2)) %>% dplyr::select(-ref_dass_depression)
+names(squared_vars)<- stringr::str_c(names(squared_vars), "_squared")
+
+complete_mod_data_with_squared<- dplyr::bind_cols(mod_vars, squared_vars)
+
+mod_with_squared<- lm(ref_dass_depression ~ ., data = complete_mod_data_with_squared)
+
+tidied_mod_with_squared<- broom::tidy(mod_with_squared) %>% dplyr::mutate(p.value = format_p_val(p.value)) %>% dplyr::filter(p.value < .05, term != "(Intercept)") %>% dplyr::arrange(desc(estimate))
+
+tidied_mod_with_squared
+
+#None of the squared terms is significant, providing evidence that the linearity assumption is upheld
+
+#Compare the two models to see if fit is better with squared terms included
+anova(mod, mod_with_squared)
+
+#We also see that the fit of the mod is not significantly improved by including squared term,
+#again providing evidence that the linearity assumption is upheld.
+```
+
+```{r}
+
+#Provides predictors vs. residuals (multiple plots - we already have these from above) and also a plot showing fitted valus vs. residuals. We also get Tukey's test - which is not significant,
+#supporting linearity.
+
+car::residualPlots(mod, ask = FALSE, id = TRUE)
+
+```
+
+```{r}
+
+#Finally, can test the linearity assumption using Ramsey’s Regression Error Specification Test #(RESET)
+
+lmtest::resettest(mod, power = 2:3, type = "regressor")
+
+#The p-value is not significant, providing evidence that the linearity assumption is upheld.
+```
+
+
+The Mean of the Residuals Approaches Zero
+
+```{r}
+
+format_p_val(mean(diagnostics$.resid))
+```
+
+Residuals are Normally Distributed
+
+```{r}
+resid_histogram <- ggplot(diagnostics, aes(.resid)) +
+  geom_histogram(bins = 10, color = "black", fill = "white")
+
+resid_histogram
+
+resid_density <- ggplot(diagnostics, aes(.resid)) +
+  geom_density() +
+  stat_function(fun = dnorm, args = list(mean = mean(diagnostics$.resid),
+                                         sd = sd(diagnostics$.resid)),
+                color = "dodgerblue", size = 2, alpha = .5)
+
+resid_density
+
+resid_boxplot<- ggplot(diagnostics, aes("", .resid)) +
+  geom_boxplot()
+
+resid_boxplot
+
+resid_qq<- ggplot(diagnostics, aes(sample = .resid)) +
+  stat_qq(shape = 1) +
+  stat_qq_line(size = 1.5, alpha = .5)
+
+resid_qq
+
+```
+
+```{r}
+#Run a formal test of normality of residuals
+
+stats::shapiro.test(diagnostics$.resid)
+
+```
+
+There is Constant Variance in Residuals (Homoskedasticity vs. Heteroskedasticity)
+
+```{r}
+#The performance package provides an initial indication about whether the assumption is met, but we want to follow
+#this up with our own checks.
+
+performance::check_heteroscedasticity(mod)
+
+```
+
+
+```{r}
+ggplot(diagnostics, aes(.fitted, .student_resid)) +
+  geom_jitter(shape = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  ylab("Studentised Residuals") +
+  xlab("Fitted")
+
+```
+
+
+```{r}
+#We can also test for heteroskedasticity using formal tests
+#First there is the studentized Breusch-Pagan test
+#We can calculate this as follows:
+
+lmtest::bptest(mod)
+
+#Or, alternatively, the Non-constant Variance Score Test:
+
+car::ncvTest(mod)
+
+#Results are very similar
+
+```
+
+
+No Autocorrelation (correlated errors)
+
+```{r}
+#Durbin-Watson result between 1.5 and 2.5 indicates, that any autocorrelation in the data will #not have a discernible effect on estimates
+
+lmtest::dwtest(mod)
+
+#Autocorrelation not a problem here
+```
+
+```{r}
+
+#Another plot we can use to view autocorrelation
+
+#If the residuals were not autocorrelated, the correlation (Y-axis) from the immediate next line onwards will drop to a near zero value below the dashed blue line (significance level).
+
+stats::acf(diagnostics$.resid)
+
+#Again, confirmation that autocorrelation isn't a problem
+
+```
+
+
+```{r}
+#Runs test to test for randomness
+
+lawstat::runs.test(diagnostics$.resid)
+
+#Not significant, autocorrelation isn't a problem
+```
+
+Predictors and Residuals are not Correlated
+
+```{r}
+performance::check_autocorrelation(mod)
+```
+
+
+```{r}
+
+#Run a correlation analysis for each predictor vs. residuals
+
+ dplyr::select(complete_mod_data, -ref_dass_depression) %>% purrr::map(~{
+   
+   stats::cor.test(.x, diagnostics$.resid)
+   
+ })
+
+#P-value = 1 for all predictor-residual correlations. So assumption is met.
+
+
+```
+
+
+No Perfect Multicollinearity
+
+```{r}
+performance::check_collinearity(mod)
+
+#It's obvious that pain_interference is a problematic variable, because it correlates highly with many predictors
+```
+
+
+```{r}
+
+#Values should be between 0 and 4
+car::vif(mod)
+```
+`
+
+```{r}
+correlations_above_.3
+```
+
+
+```{r}
+performance::check_model(mod)
+
+```
+
+Hello world
+Another test
+Final test

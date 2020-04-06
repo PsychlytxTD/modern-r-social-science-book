@@ -1,0 +1,235 @@
+# Data {#import}
+
+## Read a single csv file
+
+Use `readr::read_csv()` rather than `read.csv()` from base R.
+
+```{r}
+outcomes_2019<- readr::read_csv("mid_2019.csv")
+
+```
+
+It's a large dataset so look at the first few rows for a portion of the variables (say 30). We can also use `dim()`.
+
+```{r}
+#View the first 30 variables
+outcomes_2019 %>% dplyr::select(1:30) %>% dplyr::glimpse() 
+
+#Look at the dimensions of the data
+
+dim(outcomes_2019)
+
+```
+
+We have `r nrow(outcomes_2019)` rows and `r ncol(outcomes_2019)` columns. 
+
+## Specify column data types when importing
+
+The function `readr::read_csv()` will try to correctly guess each column type, but won't always do so correctly. Examine which data types were inferred with `readr::spec()`. 
+
+```{r}
+#Only showing the firs 5 rows of the output to illustrate the point.
+readr::spec(outcomes_2019) %>% print(n = 5)
+
+```
+
+We realise that DOB should have a date type, not character. We can manually override the specifications for individual columns as follows:
+
+```{r}
+#We don't need to manually specify all columns, just those for which we want a certain data type
+outcomes_2019<- readr::read_csv(
+  "mid_2019.csv", 
+  col_types = cols(
+    DOB = col_date()
+  )
+)
+
+```
+
+Other column type specifications can include `col_character()`, `col_logical()`, `col_double()`, `col_number()`, `col_datetime()`. Use `col_skip()` to skip a given column when importing. `col_number()` is useful when certain numeric columns are preceded by letters (whether due to data entry inaccuracies or conventions). For example:
+
+```{r}
+#Make a vector of numbers with ocasional letters before and after certain elements
+num_vec<- c("koa23", 4,5,7, "t8", "5t")
+
+#readr::parse_number() is the same as readr::col_number() and we use it because this example is not occuring within
+#the read_csv() function call.
+
+readr::parse_number(num_vec)
+
+```
+
+There is also a shortcut for specifying the data types of multiple columns quickly. For example, we had a dataframe with three columns (birthdate, age, and profession) we could specify:
+
+```{r, eval = FALSE}
+three_col_df<- readr::read_csv(
+  "three_col.csv", 
+  col_types =  "Dnc"
+)
+
+```
+
+The shortcut codes are as follows: 
+
+\newline
+
+`c` = character, `i` = integer, `n` = number, `d` = double, `l` = logical, `f` = factor, `D` = date, `T` = datetime, `t` = time, `?` = guess, or `_/-` to skip the column. 
+
+To help you specify possible column types, learn more about object classes in R here: [https://adv-r.hadley.nz/vectors-chap.html](https://adv-r.hadley.nz/vectors-chap.html). 
+
+Looking at the results of our data import, it seems like something went wrong. Take a closer look using `readr::problems()`:
+
+```{r}
+
+readr::problems(outcomes_2019)
+
+```
+
+The output lists the expected and actual values in each row of the DOB column. It's telling us here that we need to explicitly specify the date format to match the format of the date column in the csv file. Below for example, we'll use `%y` to indicate the year appears in abbreviated form (e.g. 87 rather than 1987, which would be represented by `%Y`). To learn more about date format specification see [https://r4ds.had.co.nz/dates-and-times.html](https://r4ds.had.co.nz/dates-and-times.html). 
+
+
+```{r}
+
+outcomes_2019<- readr::read_csv(
+  "mid_2019.csv", 
+  col_types = cols(
+    DOB = col_date(format = "%d/%m/%y") #Specify the format 
+  )
+)
+
+#Print out the first 20 dob entries
+outcomes_2019$DOB[1:20]
+
+
+```
+
+But there is another problem here. We have birth dates in the future! R has no way of telling what should go before the abbreviated year: 20 or 19? We can fix the problem in a few steps.
+
+```{r}
+#Get the 3rd and 4th element of each date stored in outcomes_2019$DOB (e.g. the `87` in 1987-03-12)
+#Make sure we convert this value to numeric type so that we can operate on it
+#Check whether the value is greater than 10 - if it is, we want to replace the 20 with 19 (e.g. 1968 rather than 2068)
+#Nobody should be born before 1910!
+#But if the value is less than 10 (e.g. 2003-04-07), we don't want to touch it
+#FUsing case_when() will convert our date column to a character type. To reverse this, we need to send the output to the
+#lubridate function ymd(). 
+
+outcomes_2019$DOB<- dplyr::case_when(
+
+as.numeric(stringr::str_sub(outcomes_2019$DOB, 3, 4)) > 10 ~ stringr::str_replace(outcomes_2019$DOB, regex("^20"), "19"),
+  
+TRUE ~ as.character(outcomes_2019$DOB)
+  
+) %>% lubridate::ymd()
+
+
+```
+
+We can accomplish the same thing in base R with:
+
+```{r, eval = FALSE}
+
+outcomes_2019$DOB[as.numeric(stringr::str_sub(outcomes_2019$DOB, 3, 4)) > 10]<- str_replace(outcomes_2019$DOB[as.numeric(stringr::str_sub(outcomes_2019$DOB, 3, 4)) > 10], regex("^20"), "19")
+
+```
+
+Check the first 20 birth date entries again:
+
+```{r}
+outcomes_2019$DOB[1:20]
+```
+
+Good. This example demonstrates that we often need to do some wrangling during data import, while also illustrating why we need to take great care in entering date-type data. Dates truly can be a nightmare in R. If possible, enter date data in the form `2020-03-06` or `2020/03/06`, **ensuring that leading zeros are present for days and months**. If necessary, you can  the formatting to `06-03-2020` for tables/figures, but perform calculations with one of the two date formats mentioned above.
+
+## Importing a selection of columns from a csv file
+
+Use `readr::cols_only()` to import a restricted selection of columns.
+
+```{r}
+#E.g. Yields only a single column - DOB
+
+dob_only<- readr::read_csv(
+  "mid_2019.csv", 
+  col_types = cols_only(DOB = col_date(format = "%d/%m/%y"))
+)
+
+dob_only
+
+```
+
+## Other options for readr::read_csv()
+
+Use `skip = ` if your csv file has some initial rows that contain something other than data - e.g. `read_csv("mid_2019.csv", skip = 2)`.
+
+\newline
+
+Use `col_names = FALSE` if your data has no column names.
+
+\newline
+
+Use `na = c()` to make sure that certain values in the data are explicitly coded as `NA`. E.g. `read_csv("mid_2019.csv", na = c("NA", 999, 99)`.
+
+
+## Advanced data import: importing & combining multiple csv files at once
+
+Step through the comments below to understand the process.
+
+To learn more about regular expressions in R, visit  [https://stringr.tidyverse.org/articles/regular-expressions.html](https://stringr.tidyverse.org/articles/regular-expressions.html). 
+
+\newline
+
+We begin by viewing the contents of the current working directory, then creating a regex pattern to pluck out only the csv files containing our data. In this case, we will be importing and combining 3 separate csv files.
+
+```{r}
+
+fs::dir_ls()
+
+#Create a regex pattern to match our csv files (in this case 4 digits then .csv)
+r_csv_files<- fs::dir_ls(here::here(), regexp = "\\d{4}\\.csv$")
+
+```
+
+Next, read in the csv files and store them in a list (label them for ease of comparison). Then use `janitor::compare_df_cols()` to the columns that are common to all dataframes, and whether each of these have matching data types. 
+
+```{r}
+
+outcome_data_raw<- r_csv_files %>% purrr::map( ~readr::read_csv(.x)) %>% 
+ purrr::set_names("early_19", "mid_17", "mid_18")
+
+#Examine the output
+str(outcome_data_raw, max.level = 1)
+
+#Compare the data types of the columns in each df. They need to be the same to be able to
+#join the data.
+data_comparison<- janitor::compare_df_cols(outcome_data_raw)
+data_comparison %>% head(10)
+```
+
+Because there are non-matching column types, we import all columns as character vectors
+by specifying `col_types = cols(.default = "c")`. Then create a character vector listing columns that are common to each dataframe. The `vars()` and `all_vars()` functions from dplyr allow us to pass a selection of column names to filter without explicitly writing the names of those columns. 
+
+```{r}
+
+outcome_data_raw<- r_csv_files %>% purrr::map( ~readr::read_csv(.x, col_types = cols(.default = "c"))) %>% purrr::set_names("early_19", "mid_17", "mid_18")
+
+#Retain only columns that are common to each df (gives a character vector of column names)
+matching_vars<- data_comparison %>% dplyr::filter_at(dplyr::vars(-column_name), dplyr::all_vars(!is.na(.))) %>% dplyr::select(column_name) %>% dplyr::pull(1)
+```
+
+Iterate through each dataframe and select only variables contained in our character vector of column names.
+
+```{r}
+outcome_data_raw<- outcome_data_raw %>% purrr::map(~dplyr::select(.x, matching_vars))
+```
+
+Finally, bind the dataframes together.
+
+```{r}
+outcome_data<- dplyr::bind_rows(outcome_data_raw)
+
+#VCheck the result (a few columns only)
+
+outcome_data %>% dplyr::select(1:20) %>% dplyr::glimpse()
+```
+
+

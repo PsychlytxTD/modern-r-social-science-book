@@ -1,0 +1,15 @@
+# Tidy variable names {#tidy_names}
+
+```{r}
+names(outcome_data)<- janitor::make_clean_names(names(outcome_data))
+
+#Remove the e_ or _e_ from variable names
+
+names(outcome_data)<- stringr::str_replace_all(names(outcome_data), "^e_", "")
+names(outcome_data)<- stringr::str_replace_all(names(outcome_data), "_e_", "_")
+
+#Find all variables that have a 'q' followed by any digit. Replace them with q_digit.
+#Makes it easier to to distingush scale items.
+
+names(outcome_data)<- stringr::str_replace_all(names(outcome_data), "q(?=\\d+)", "q_")
+```

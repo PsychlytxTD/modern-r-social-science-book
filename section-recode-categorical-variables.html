@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 Recode categorical variables | Modern R for Social Science</title>
+  <meta name="description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 Recode categorical variables | Modern R for Social Science" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 Recode categorical variables | Modern R for Social Science" />
+  
+  <meta name="twitter:description" content="Step-by-step modern R code for essential social science research." />
+  
+
+<meta name="author" content="Timothy Deitz" />
+
+
+<meta name="date" content="2020-03-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="section-convert-variables-to-numeric.html"/>
+<link rel="next" href="section-drop-variables.html"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="/Users/timothydeitz/modern_r_social_science_book/libs/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="section-basic-data-exploration.html"><a href="section-basic-data-exploration.html"><i class="fa fa-check"></i><b>1</b> Basic Data Exploration</a></li>
+<li class="chapter" data-level="2" data-path="section-import-combine-multiple-csv-files.html"><a href="section-import-combine-multiple-csv-files.html"><i class="fa fa-check"></i><b>2</b> Import &amp; Combine Multiple CSV Files</a></li>
+<li class="chapter" data-level="3" data-path="section-tidy-variable-names.html"><a href="section-tidy-variable-names.html"><i class="fa fa-check"></i><b>3</b> Tidy variable names</a></li>
+<li class="chapter" data-level="4" data-path="section-manage-missing-values.html"><a href="section-manage-missing-values.html"><i class="fa fa-check"></i><b>4</b> Manage missing values</a></li>
+<li class="chapter" data-level="5" data-path="section-remove-empty-or-duplicate-rows-and-columns.html"><a href="section-remove-empty-or-duplicate-rows-and-columns.html"><i class="fa fa-check"></i><b>5</b> Remove empty or duplicate rows and columns</a></li>
+<li class="chapter" data-level="6" data-path="section-convert-variables-to-numeric.html"><a href="section-convert-variables-to-numeric.html"><i class="fa fa-check"></i><b>6</b> Convert variables to numeric</a></li>
+<li class="chapter" data-level="7" data-path="section-recode-categorical-variables.html"><a href="section-recode-categorical-variables.html"><i class="fa fa-check"></i><b>7</b> Recode categorical variables</a></li>
+<li class="chapter" data-level="8" data-path="section-drop-variables.html"><a href="section-drop-variables.html"><i class="fa fa-check"></i><b>8</b> Drop variables</a></li>
+<li class="chapter" data-level="9" data-path="section-multiple-linear-regression.html"><a href="section-multiple-linear-regression.html"><i class="fa fa-check"></i><b>9</b> Multiple Linear Regression</a></li>
+<li class="chapter" data-level="10" data-path="section-feature-selection.html"><a href="section-feature-selection.html"><i class="fa fa-check"></i><b>10</b> Feature Selection</a></li>
+<li class="chapter" data-level="11" data-path="section-generate-model-diagnostics.html"><a href="section-generate-model-diagnostics.html"><i class="fa fa-check"></i><b>11</b> Generate Model Diagnostics</a></li>
+<li class="chapter" data-level="12" data-path="section-outliers-leverages.html"><a href="section-outliers-leverages.html"><i class="fa fa-check"></i><b>12</b> Outliers &amp; Leverages</a></li>
+<li class="chapter" data-level="13" data-path="section-cases-exerting-undue-influence-over-model.html"><a href="section-cases-exerting-undue-influence-over-model.html"><i class="fa fa-check"></i><b>13</b> Cases Exerting Undue Influence Over Model</a></li>
+<li class="chapter" data-level="14" data-path="section-linearity-assumption.html"><a href="section-linearity-assumption.html"><i class="fa fa-check"></i><b>14</b> Linearity Assumption</a></li>
+<li class="chapter" data-level="15" data-path="section-no-autocorrelation-correlated-errors.html"><a href="section-no-autocorrelation-correlated-errors.html"><i class="fa fa-check"></i><b>15</b> No Autocorrelation (correlated errors)</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modern R for Social Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section-recode-categorical-variables" class="section level1">
+<h1><span class="header-section-number">Chapter 7</span> Recode categorical variables</h1>
+<div class="sourceCode" id="section-cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">outcome_data<span class="op">$</span>pain_source&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>pain_source,</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">                                        <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Injury at home&quot;</span>,</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">                                        <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Injury at work/school&quot;</span>,</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">                                        <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Injury in another setting&quot;</span>,</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">                                        <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;After surgery&quot;</span>,</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">                                        <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;Motor vehicle crash&quot;</span>,</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">                                        <span class="st">`</span><span class="dt">6</span><span class="st">`</span> =<span class="st"> &quot;Cancer&quot;</span>,</a>
+<a class="sourceLine" id="cb14-8" data-line-number="8">                                        <span class="st">`</span><span class="dt">7</span><span class="st">`</span> =<span class="st"> &quot;Medical condition other than cancer&quot;</span>,</a>
+<a class="sourceLine" id="cb14-9" data-line-number="9">                                        <span class="st">`</span><span class="dt">8</span><span class="st">`</span> =<span class="st"> &quot;No obvious cause&quot;</span>,</a>
+<a class="sourceLine" id="cb14-10" data-line-number="10">                                        <span class="st">`</span><span class="dt">99</span><span class="st">`</span> =<span class="st"> &quot;Other cause&quot;</span>,</a>
+<a class="sourceLine" id="cb14-11" data-line-number="11">                                        <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-12" data-line-number="12">                                        )</a>
+<a class="sourceLine" id="cb14-13" data-line-number="13"></a>
+<a class="sourceLine" id="cb14-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb14-15" data-line-number="15">outcome_data<span class="op">$</span>pain_duration&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>pain_duration,</a>
+<a class="sourceLine" id="cb14-16" data-line-number="16">                                          <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Less than 3 months&quot;</span>,</a>
+<a class="sourceLine" id="cb14-17" data-line-number="17">                                          <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;3-12 Months&quot;</span>,</a>
+<a class="sourceLine" id="cb14-18" data-line-number="18">                                          <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;12 months-2 years&quot;</span>,</a>
+<a class="sourceLine" id="cb14-19" data-line-number="19">                                          <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;2-5 years&quot;</span>,</a>
+<a class="sourceLine" id="cb14-20" data-line-number="20">                                          <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;More than 5 years&quot;</span>,</a>
+<a class="sourceLine" id="cb14-21" data-line-number="21">                                          <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-22" data-line-number="22">                                          )</a>
+<a class="sourceLine" id="cb14-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb14-24" data-line-number="24">outcome_data<span class="op">$</span>country_of_birth&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>country_of_birth, <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Australia&quot;</span>, </a>
+<a class="sourceLine" id="cb14-25" data-line-number="25">                                             <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;New Zealand&quot;</span>,   <span class="st">`</span><span class="dt">9</span><span class="st">`</span> =<span class="st"> &quot;Other&quot;</span>, <span class="dt">.default =</span> <span class="ot">NA_character_</span>)</a>
+<a class="sourceLine" id="cb14-26" data-line-number="26"></a>
+<a class="sourceLine" id="cb14-27" data-line-number="27"><span class="co">#outcome_data$sex&lt;- dplyr::recode(outcome_data$sex, `1` = &quot;Male&quot;, `2` = &quot;Female&quot;, `3` = &quot;Not stated/described&quot;, .default = NA_character_)</span></a>
+<a class="sourceLine" id="cb14-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb14-29" data-line-number="29">outcome_data<span class="op">$</span>state&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>state, <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Victoria&quot;</span>, <span class="dt">.default =</span> <span class="ot">NA_character_</span>)</a>
+<a class="sourceLine" id="cb14-30" data-line-number="30"></a>
+<a class="sourceLine" id="cb14-31" data-line-number="31">outcome_data<span class="op">$</span>referral_source&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>referral_source, </a>
+<a class="sourceLine" id="cb14-32" data-line-number="32">                                            <span class="st">`</span><span class="dt">10</span><span class="st">`</span> =<span class="st"> &quot;GP/Nurse&quot;</span>,</a>
+<a class="sourceLine" id="cb14-33" data-line-number="33">                                            <span class="st">`</span><span class="dt">11</span><span class="st">`</span> =<span class="st"> &quot;Specialist&quot;</span>, <span class="st">`</span><span class="dt">12</span><span class="st">`</span> =<span class="st"> &quot;Pain management service&quot;</span>,</a>
+<a class="sourceLine" id="cb14-34" data-line-number="34">                                            <span class="st">`</span><span class="dt">13</span><span class="st">`</span> =<span class="st"> &quot;Public hospital&quot;</span>, <span class="st">`</span><span class="dt">14</span><span class="st">`</span> =<span class="st"> &quot;Private hospital&quot;</span>,</a>
+<a class="sourceLine" id="cb14-35" data-line-number="35">                                            <span class="st">`</span><span class="dt">15</span><span class="st">`</span> =<span class="st"> &quot;Rehab provider/private insurer&quot;</span>, <span class="st">`</span><span class="dt">99</span><span class="st">`</span> =<span class="st"> &quot;Other&quot;</span>,</a>
+<a class="sourceLine" id="cb14-36" data-line-number="36">                                            <span class="dt">.default =</span> <span class="ot">NA_character_</span>)</a>
+<a class="sourceLine" id="cb14-37" data-line-number="37"></a>
+<a class="sourceLine" id="cb14-38" data-line-number="38">outcome_data<span class="op">$</span>episode_start_mode&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>episode_start_mode,</a>
+<a class="sourceLine" id="cb14-39" data-line-number="39">                                               <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Single or multidisciplinary assessment&quot;</span>,</a>
+<a class="sourceLine" id="cb14-40" data-line-number="40">                                               <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Treatment start&quot;</span>,</a>
+<a class="sourceLine" id="cb14-41" data-line-number="41">                                               <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Multidisciplinary assessment and/or treatment&quot;</span>,</a>
+<a class="sourceLine" id="cb14-42" data-line-number="42">                                               <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;Single discipline assessment and/or treatment&quot;</span>,</a>
+<a class="sourceLine" id="cb14-43" data-line-number="43">                                               <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;Education/orientation program&quot;</span>,</a>
+<a class="sourceLine" id="cb14-44" data-line-number="44">                                               <span class="dt">.default =</span> <span class="ot">NA_character_</span>)</a>
+<a class="sourceLine" id="cb14-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb14-46" data-line-number="46">outcome_data<span class="op">$</span>compensation_case_type&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>compensation_case_type,</a>
+<a class="sourceLine" id="cb14-47" data-line-number="47">                                                   <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Workers compensation&quot;</span>,</a>
+<a class="sourceLine" id="cb14-48" data-line-number="48">                                                   <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Public liability compensation&quot;</span>,</a>
+<a class="sourceLine" id="cb14-49" data-line-number="49">                                                   <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Motor vehicle compensation&quot;</span>,</a>
+<a class="sourceLine" id="cb14-50" data-line-number="50">                                                   <span class="st">`</span><span class="dt">9</span><span class="st">`</span> =<span class="st"> &quot;Other compensation&quot;</span>,</a>
+<a class="sourceLine" id="cb14-51" data-line-number="51">                                                   <span class="dt">.default =</span> <span class="ot">NA_character_</span>)</a>
+<a class="sourceLine" id="cb14-52" data-line-number="52"></a>
+<a class="sourceLine" id="cb14-53" data-line-number="53"></a>
+<a class="sourceLine" id="cb14-54" data-line-number="54">outcome_data<span class="op">$</span>episode_end_mode&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>episode_end_mode,</a>
+<a class="sourceLine" id="cb14-55" data-line-number="55">                                             <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Complete - self management/referal to primary care&quot;</span>,</a>
+<a class="sourceLine" id="cb14-56" data-line-number="56">                                             <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Referral to another pain service&quot;</span>,</a>
+<a class="sourceLine" id="cb14-57" data-line-number="57">                                             <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Patient discontinued by choice&quot;</span>,</a>
+<a class="sourceLine" id="cb14-58" data-line-number="58">                                             <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;Died&quot;</span>,</a>
+<a class="sourceLine" id="cb14-59" data-line-number="59">                                             <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;Complete - Ongoing review&quot;</span>,</a>
+<a class="sourceLine" id="cb14-60" data-line-number="60">                                             <span class="st">`</span><span class="dt">6</span><span class="st">`</span> =<span class="st"> &quot;Referral did not proceed to episode start&quot;</span>,</a>
+<a class="sourceLine" id="cb14-61" data-line-number="61">                                             <span class="st">`</span><span class="dt">7</span><span class="st">`</span> =<span class="st"> &quot;Lost to contact&quot;</span>,</a>
+<a class="sourceLine" id="cb14-62" data-line-number="62">                                             <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-63" data-line-number="63">                                             )</a>
+<a class="sourceLine" id="cb14-64" data-line-number="64"></a>
+<a class="sourceLine" id="cb14-65" data-line-number="65">outcome_data<span class="op">$</span>ref_pain_description&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>ref_pain_description,</a>
+<a class="sourceLine" id="cb14-66" data-line-number="66">                                                 <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Always present (same intensity)&quot;</span>,</a>
+<a class="sourceLine" id="cb14-67" data-line-number="67">                                                 <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Always present (intensity varies)&quot;</span>,</a>
+<a class="sourceLine" id="cb14-68" data-line-number="68">                                                 <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Often present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-69" data-line-number="69">                                                 <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;Occasionally present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-70" data-line-number="70">                                                 <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;Rarely present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-71" data-line-number="71">                                                 <span class="st">`</span><span class="dt">6</span><span class="st">`</span> =<span class="st"> &quot;No longer present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-72" data-line-number="72">                                                 <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-73" data-line-number="73">                                                 )</a>
+<a class="sourceLine" id="cb14-74" data-line-number="74"></a>
+<a class="sourceLine" id="cb14-75" data-line-number="75">outcome_data<span class="op">$</span>end_pain_description&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>end_pain_description,</a>
+<a class="sourceLine" id="cb14-76" data-line-number="76">                                                 <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> &quot;Always present (same intensity)&quot;</span>,</a>
+<a class="sourceLine" id="cb14-77" data-line-number="77">                                                 <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> &quot;Always present (intensity varies)&quot;</span>,</a>
+<a class="sourceLine" id="cb14-78" data-line-number="78">                                                 <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> &quot;Often present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-79" data-line-number="79">                                                 <span class="st">`</span><span class="dt">4</span><span class="st">`</span> =<span class="st"> &quot;Occasionally present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-80" data-line-number="80">                                                 <span class="st">`</span><span class="dt">5</span><span class="st">`</span> =<span class="st"> &quot;Rarely present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-81" data-line-number="81">                                                 <span class="st">`</span><span class="dt">6</span><span class="st">`</span> =<span class="st"> &quot;No longer present&quot;</span>,</a>
+<a class="sourceLine" id="cb14-82" data-line-number="82">                                                 <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-83" data-line-number="83">)</a>
+<a class="sourceLine" id="cb14-84" data-line-number="84"></a>
+<a class="sourceLine" id="cb14-85" data-line-number="85"></a>
+<a class="sourceLine" id="cb14-86" data-line-number="86">outcome_data<span class="op">$</span>ref_bpi_main_pain&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>ref_bpi_main_pain,</a>
+<a class="sourceLine" id="cb14-87" data-line-number="87">                                              <span class="st">`</span><span class="dt">51</span><span class="st">`</span> =<span class="st"> &quot;Head&quot;</span>,</a>
+<a class="sourceLine" id="cb14-88" data-line-number="88">                                              <span class="st">`</span><span class="dt">52</span><span class="st">`</span> =<span class="st"> &quot;Face&quot;</span>,</a>
+<a class="sourceLine" id="cb14-89" data-line-number="89">                                              <span class="st">`</span><span class="dt">53</span><span class="st">`</span> =<span class="st"> &quot;Neck&quot;</span>,</a>
+<a class="sourceLine" id="cb14-90" data-line-number="90">                                              <span class="st">`</span><span class="dt">54</span><span class="st">`</span> =<span class="st"> &quot;Left shoulder&quot;</span>,</a>
+<a class="sourceLine" id="cb14-91" data-line-number="91">                                              <span class="st">`</span><span class="dt">55</span><span class="st">`</span> =<span class="st"> &quot;Right shoulder&quot;</span>,</a>
+<a class="sourceLine" id="cb14-92" data-line-number="92">                                              <span class="st">`</span><span class="dt">56</span><span class="st">`</span> =<span class="st"> &quot;Chest&quot;</span>,</a>
+<a class="sourceLine" id="cb14-93" data-line-number="93">                                              <span class="st">`</span><span class="dt">57</span><span class="st">`</span> =<span class="st"> &quot;Left upper arm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-94" data-line-number="94">                                              <span class="st">`</span><span class="dt">58</span><span class="st">`</span> =<span class="st"> &quot;Right upper arm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-95" data-line-number="95">                                              <span class="st">`</span><span class="dt">59</span><span class="st">`</span> =<span class="st"> &quot;Left elbow&quot;</span>,</a>
+<a class="sourceLine" id="cb14-96" data-line-number="96">                                              <span class="st">`</span><span class="dt">60</span><span class="st">`</span> =<span class="st"> &quot;Right elbow&quot;</span>,</a>
+<a class="sourceLine" id="cb14-97" data-line-number="97">                                              <span class="st">`</span><span class="dt">61</span><span class="st">`</span> =<span class="st"> &quot;Left forearm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-98" data-line-number="98">                                              <span class="st">`</span><span class="dt">62</span><span class="st">`</span> =<span class="st"> &quot;Right forearm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-99" data-line-number="99">                                              <span class="st">`</span><span class="dt">63</span><span class="st">`</span> =<span class="st"> &quot;Left wrist&quot;</span>,</a>
+<a class="sourceLine" id="cb14-100" data-line-number="100">                                              <span class="st">`</span><span class="dt">64</span><span class="st">`</span> =<span class="st"> &quot;Right wrist&quot;</span>,</a>
+<a class="sourceLine" id="cb14-101" data-line-number="101">                                              <span class="st">`</span><span class="dt">65</span><span class="st">`</span> =<span class="st"> &quot;Left hand&quot;</span>,</a>
+<a class="sourceLine" id="cb14-102" data-line-number="102">                                              <span class="st">`</span><span class="dt">66</span><span class="st">`</span> =<span class="st"> &quot;Right hand&quot;</span>,</a>
+<a class="sourceLine" id="cb14-103" data-line-number="103">                                              <span class="st">`</span><span class="dt">67</span><span class="st">`</span> =<span class="st"> &quot;Abdomen&quot;</span>,</a>
+<a class="sourceLine" id="cb14-104" data-line-number="104">                                              <span class="st">`</span><span class="dt">68</span><span class="st">`</span> =<span class="st"> &quot;Left hip&quot;</span>,</a>
+<a class="sourceLine" id="cb14-105" data-line-number="105">                                              <span class="st">`</span><span class="dt">69</span><span class="st">`</span> =<span class="st"> &quot;Right hip&quot;</span>,</a>
+<a class="sourceLine" id="cb14-106" data-line-number="106">                                              <span class="st">`</span><span class="dt">70</span><span class="st">`</span> =<span class="st"> &quot;Groin&quot;</span>,</a>
+<a class="sourceLine" id="cb14-107" data-line-number="107">                                              <span class="st">`</span><span class="dt">71</span><span class="st">`</span> =<span class="st"> &quot;Left thigh&quot;</span>,</a>
+<a class="sourceLine" id="cb14-108" data-line-number="108">                                              <span class="st">`</span><span class="dt">72</span><span class="st">`</span> =<span class="st"> &quot;Right thigh&quot;</span>,</a>
+<a class="sourceLine" id="cb14-109" data-line-number="109">                                              <span class="st">`</span><span class="dt">73</span><span class="st">`</span> =<span class="st"> &quot;Left knee&quot;</span>,</a>
+<a class="sourceLine" id="cb14-110" data-line-number="110">                                              <span class="st">`</span><span class="dt">74</span><span class="st">`</span> =<span class="st"> &quot;Right knee&quot;</span>,</a>
+<a class="sourceLine" id="cb14-111" data-line-number="111">                                              <span class="st">`</span><span class="dt">75</span><span class="st">`</span> =<span class="st"> &quot;Left calf&quot;</span>,</a>
+<a class="sourceLine" id="cb14-112" data-line-number="112">                                              <span class="st">`</span><span class="dt">76</span><span class="st">`</span> =<span class="st"> &quot;Right calf&quot;</span>,</a>
+<a class="sourceLine" id="cb14-113" data-line-number="113">                                              <span class="st">`</span><span class="dt">77</span><span class="st">`</span> =<span class="st"> &quot;Left ankle&quot;</span>,</a>
+<a class="sourceLine" id="cb14-114" data-line-number="114">                                              <span class="st">`</span><span class="dt">78</span><span class="st">`</span> =<span class="st"> &quot;Right ankle&quot;</span>,</a>
+<a class="sourceLine" id="cb14-115" data-line-number="115">                                              <span class="st">`</span><span class="dt">79</span><span class="st">`</span> =<span class="st"> &quot;Left foot&quot;</span>,</a>
+<a class="sourceLine" id="cb14-116" data-line-number="116">                                              <span class="st">`</span><span class="dt">80</span><span class="st">`</span> =<span class="st"> &quot;Right foot&quot;</span>,</a>
+<a class="sourceLine" id="cb14-117" data-line-number="117">                                              <span class="st">`</span><span class="dt">81</span><span class="st">`</span> =<span class="st"> &quot;Upper back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-118" data-line-number="118">                                              <span class="st">`</span><span class="dt">82</span><span class="st">`</span> =<span class="st"> &quot;Mid back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-119" data-line-number="119">                                              <span class="st">`</span><span class="dt">83</span><span class="st">`</span> =<span class="st"> &quot;Low back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-120" data-line-number="120">                                              <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-121" data-line-number="121">                                              )</a>
+<a class="sourceLine" id="cb14-122" data-line-number="122"></a>
+<a class="sourceLine" id="cb14-123" data-line-number="123">outcome_data<span class="op">$</span>end_bpi_main_pain&lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">recode</span>(outcome_data<span class="op">$</span>end_bpi_main_pain,</a>
+<a class="sourceLine" id="cb14-124" data-line-number="124">                                              <span class="st">`</span><span class="dt">51</span><span class="st">`</span> =<span class="st"> &quot;Head&quot;</span>,</a>
+<a class="sourceLine" id="cb14-125" data-line-number="125">                                              <span class="st">`</span><span class="dt">52</span><span class="st">`</span> =<span class="st"> &quot;Face&quot;</span>,</a>
+<a class="sourceLine" id="cb14-126" data-line-number="126">                                              <span class="st">`</span><span class="dt">53</span><span class="st">`</span> =<span class="st"> &quot;Neck&quot;</span>,</a>
+<a class="sourceLine" id="cb14-127" data-line-number="127">                                              <span class="st">`</span><span class="dt">54</span><span class="st">`</span> =<span class="st"> &quot;Left shoulder&quot;</span>,</a>
+<a class="sourceLine" id="cb14-128" data-line-number="128">                                              <span class="st">`</span><span class="dt">55</span><span class="st">`</span> =<span class="st"> &quot;Right shoulder&quot;</span>,</a>
+<a class="sourceLine" id="cb14-129" data-line-number="129">                                              <span class="st">`</span><span class="dt">56</span><span class="st">`</span> =<span class="st"> &quot;Chest&quot;</span>,</a>
+<a class="sourceLine" id="cb14-130" data-line-number="130">                                              <span class="st">`</span><span class="dt">57</span><span class="st">`</span> =<span class="st"> &quot;Left upper arm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-131" data-line-number="131">                                              <span class="st">`</span><span class="dt">58</span><span class="st">`</span> =<span class="st"> &quot;Right upper arm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-132" data-line-number="132">                                              <span class="st">`</span><span class="dt">59</span><span class="st">`</span> =<span class="st"> &quot;Left elbow&quot;</span>,</a>
+<a class="sourceLine" id="cb14-133" data-line-number="133">                                              <span class="st">`</span><span class="dt">60</span><span class="st">`</span> =<span class="st"> &quot;Right elbow&quot;</span>,</a>
+<a class="sourceLine" id="cb14-134" data-line-number="134">                                              <span class="st">`</span><span class="dt">61</span><span class="st">`</span> =<span class="st"> &quot;Left forearm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-135" data-line-number="135">                                              <span class="st">`</span><span class="dt">62</span><span class="st">`</span> =<span class="st"> &quot;Right forearm&quot;</span>,</a>
+<a class="sourceLine" id="cb14-136" data-line-number="136">                                              <span class="st">`</span><span class="dt">63</span><span class="st">`</span> =<span class="st"> &quot;Left wrist&quot;</span>,</a>
+<a class="sourceLine" id="cb14-137" data-line-number="137">                                              <span class="st">`</span><span class="dt">64</span><span class="st">`</span> =<span class="st"> &quot;Right wrist&quot;</span>,</a>
+<a class="sourceLine" id="cb14-138" data-line-number="138">                                              <span class="st">`</span><span class="dt">65</span><span class="st">`</span> =<span class="st"> &quot;Left hand&quot;</span>,</a>
+<a class="sourceLine" id="cb14-139" data-line-number="139">                                              <span class="st">`</span><span class="dt">66</span><span class="st">`</span> =<span class="st"> &quot;Right hand&quot;</span>,</a>
+<a class="sourceLine" id="cb14-140" data-line-number="140">                                              <span class="st">`</span><span class="dt">67</span><span class="st">`</span> =<span class="st"> &quot;Abdomen&quot;</span>,</a>
+<a class="sourceLine" id="cb14-141" data-line-number="141">                                              <span class="st">`</span><span class="dt">68</span><span class="st">`</span> =<span class="st"> &quot;Left hip&quot;</span>,</a>
+<a class="sourceLine" id="cb14-142" data-line-number="142">                                              <span class="st">`</span><span class="dt">69</span><span class="st">`</span> =<span class="st"> &quot;Right hip&quot;</span>,</a>
+<a class="sourceLine" id="cb14-143" data-line-number="143">                                              <span class="st">`</span><span class="dt">70</span><span class="st">`</span> =<span class="st"> &quot;Groin&quot;</span>,</a>
+<a class="sourceLine" id="cb14-144" data-line-number="144">                                              <span class="st">`</span><span class="dt">71</span><span class="st">`</span> =<span class="st"> &quot;Left thigh&quot;</span>,</a>
+<a class="sourceLine" id="cb14-145" data-line-number="145">                                              <span class="st">`</span><span class="dt">72</span><span class="st">`</span> =<span class="st"> &quot;Right thigh&quot;</span>,</a>
+<a class="sourceLine" id="cb14-146" data-line-number="146">                                              <span class="st">`</span><span class="dt">73</span><span class="st">`</span> =<span class="st"> &quot;Left knee&quot;</span>,</a>
+<a class="sourceLine" id="cb14-147" data-line-number="147">                                              <span class="st">`</span><span class="dt">74</span><span class="st">`</span> =<span class="st"> &quot;Right knee&quot;</span>,</a>
+<a class="sourceLine" id="cb14-148" data-line-number="148">                                              <span class="st">`</span><span class="dt">75</span><span class="st">`</span> =<span class="st"> &quot;Left calf&quot;</span>,</a>
+<a class="sourceLine" id="cb14-149" data-line-number="149">                                              <span class="st">`</span><span class="dt">76</span><span class="st">`</span> =<span class="st"> &quot;Right calf&quot;</span>,</a>
+<a class="sourceLine" id="cb14-150" data-line-number="150">                                              <span class="st">`</span><span class="dt">77</span><span class="st">`</span> =<span class="st"> &quot;Left ankle&quot;</span>,</a>
+<a class="sourceLine" id="cb14-151" data-line-number="151">                                              <span class="st">`</span><span class="dt">78</span><span class="st">`</span> =<span class="st"> &quot;Right ankle&quot;</span>,</a>
+<a class="sourceLine" id="cb14-152" data-line-number="152">                                              <span class="st">`</span><span class="dt">79</span><span class="st">`</span> =<span class="st"> &quot;Left foot&quot;</span>,</a>
+<a class="sourceLine" id="cb14-153" data-line-number="153">                                              <span class="st">`</span><span class="dt">80</span><span class="st">`</span> =<span class="st"> &quot;Right foot&quot;</span>,</a>
+<a class="sourceLine" id="cb14-154" data-line-number="154">                                              <span class="st">`</span><span class="dt">81</span><span class="st">`</span> =<span class="st"> &quot;Upper back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-155" data-line-number="155">                                              <span class="st">`</span><span class="dt">82</span><span class="st">`</span> =<span class="st"> &quot;Mid back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-156" data-line-number="156">                                              <span class="st">`</span><span class="dt">83</span><span class="st">`</span> =<span class="st"> &quot;Low back&quot;</span>,</a>
+<a class="sourceLine" id="cb14-157" data-line-number="157">                                              <span class="dt">.default =</span> <span class="ot">NA_character_</span></a>
+<a class="sourceLine" id="cb14-158" data-line-number="158">)</a></code></pre></div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="section-convert-variables-to-numeric.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="section-drop-variables.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/%s",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 9 Multiple Linear Regression | Modern R for Social Science</title>
+  <meta name="description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 9 Multiple Linear Regression | Modern R for Social Science" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Step-by-step modern R code for essential social science research." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 9 Multiple Linear Regression | Modern R for Social Science" />
+  
+  <meta name="twitter:description" content="Step-by-step modern R code for essential social science research." />
+  
+
+<meta name="author" content="Timothy Deitz" />
+
+
+<meta name="date" content="2020-03-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="section-drop-variables.html"/>
+<link rel="next" href="section-feature-selection.html"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="/Users/timothydeitz/modern_r_social_science_book/libs/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="section-basic-data-exploration.html"><a href="section-basic-data-exploration.html"><i class="fa fa-check"></i><b>1</b> Basic Data Exploration</a></li>
+<li class="chapter" data-level="2" data-path="section-import-combine-multiple-csv-files.html"><a href="section-import-combine-multiple-csv-files.html"><i class="fa fa-check"></i><b>2</b> Import &amp; Combine Multiple CSV Files</a></li>
+<li class="chapter" data-level="3" data-path="section-tidy-variable-names.html"><a href="section-tidy-variable-names.html"><i class="fa fa-check"></i><b>3</b> Tidy variable names</a></li>
+<li class="chapter" data-level="4" data-path="section-manage-missing-values.html"><a href="section-manage-missing-values.html"><i class="fa fa-check"></i><b>4</b> Manage missing values</a></li>
+<li class="chapter" data-level="5" data-path="section-remove-empty-or-duplicate-rows-and-columns.html"><a href="section-remove-empty-or-duplicate-rows-and-columns.html"><i class="fa fa-check"></i><b>5</b> Remove empty or duplicate rows and columns</a></li>
+<li class="chapter" data-level="6" data-path="section-convert-variables-to-numeric.html"><a href="section-convert-variables-to-numeric.html"><i class="fa fa-check"></i><b>6</b> Convert variables to numeric</a></li>
+<li class="chapter" data-level="7" data-path="section-recode-categorical-variables.html"><a href="section-recode-categorical-variables.html"><i class="fa fa-check"></i><b>7</b> Recode categorical variables</a></li>
+<li class="chapter" data-level="8" data-path="section-drop-variables.html"><a href="section-drop-variables.html"><i class="fa fa-check"></i><b>8</b> Drop variables</a></li>
+<li class="chapter" data-level="9" data-path="section-multiple-linear-regression.html"><a href="section-multiple-linear-regression.html"><i class="fa fa-check"></i><b>9</b> Multiple Linear Regression</a></li>
+<li class="chapter" data-level="10" data-path="section-feature-selection.html"><a href="section-feature-selection.html"><i class="fa fa-check"></i><b>10</b> Feature Selection</a></li>
+<li class="chapter" data-level="11" data-path="section-generate-model-diagnostics.html"><a href="section-generate-model-diagnostics.html"><i class="fa fa-check"></i><b>11</b> Generate Model Diagnostics</a></li>
+<li class="chapter" data-level="12" data-path="section-outliers-leverages.html"><a href="section-outliers-leverages.html"><i class="fa fa-check"></i><b>12</b> Outliers &amp; Leverages</a></li>
+<li class="chapter" data-level="13" data-path="section-cases-exerting-undue-influence-over-model.html"><a href="section-cases-exerting-undue-influence-over-model.html"><i class="fa fa-check"></i><b>13</b> Cases Exerting Undue Influence Over Model</a></li>
+<li class="chapter" data-level="14" data-path="section-linearity-assumption.html"><a href="section-linearity-assumption.html"><i class="fa fa-check"></i><b>14</b> Linearity Assumption</a></li>
+<li class="chapter" data-level="15" data-path="section-no-autocorrelation-correlated-errors.html"><a href="section-no-autocorrelation-correlated-errors.html"><i class="fa fa-check"></i><b>15</b> No Autocorrelation (correlated errors)</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Modern R for Social Science</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section-multiple-linear-regression" class="section level1">
+<h1><span class="header-section-number">Chapter 9</span> Multiple Linear Regression</h1>
+<div class="sourceCode" id="section-cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co">#Run the mod</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">mod&lt;-<span class="st"> </span><span class="kw">lm</span>(ref_dass_depression <span class="op">~</span><span class="st"> </span>ref_pcs_total <span class="op">+</span><span class="st"> </span>ref_pseq_total <span class="op">+</span><span class="st"> </span>ref_bpi_pain_severity <span class="op">+</span><span class="st"> </span>ref_bpi_pain_interference <span class="op">+</span><span class="st"> </span>ref_bpi_sleep <span class="op">+</span><span class="st"> </span>ref_bpi_relations <span class="op">+</span><span class="st"> </span>ref_bpi_walking <span class="op">+</span><span class="st"> </span>ref_unemployed_pain <span class="op">+</span><span class="st"> </span>compensation_case <span class="op">+</span><span class="st"> </span>ref_daily_morphine <span class="op">+</span><span class="st"> </span>ref_count_analg_all <span class="op">+</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>ref_weight, <span class="dt">data =</span> outcome_data)</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="co">#Get only the variables we used to specify the model</span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">mod_vars&lt;-<span class="st"> </span>outcome_data <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">select</span>(base<span class="op">::</span><span class="kw">all.vars</span>(mod<span class="op">$</span>call)[<span class="dv">1</span>], <span class="kw">names</span>(mod<span class="op">$</span>coefficients[<span class="op">-</span><span class="dv">1</span>]))</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="co">#Of the model variables, only retain rows that are complete. This will be equal to the data that was</span></a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="co">#used in the regression call (only complete cases). </span></a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="co">#We&#39;ll use this complete data later.</span></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12">complete_mod_data&lt;-<span class="st"> </span>mod_vars <span class="op">%&gt;%</span><span class="st"> </span>tidyr<span class="op">::</span><span class="kw">drop_na</span>()</a>
+<a class="sourceLine" id="cb16-13" data-line-number="13"><span class="co">#In base R, use: complete_mod_data&lt;- mod_vars[which(complete.cases(mod_vars)), ]</span></a>
+<a class="sourceLine" id="cb16-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb16-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb16-16" data-line-number="16"><span class="co">#all.vars() returns all the variables contained in an expression or call (i.e. lm())</span></a>
+<a class="sourceLine" id="cb16-17" data-line-number="17"><span class="co">#base::all.vars(mod$call)[1] gives us only the name of the outcome variable</span></a>
+<a class="sourceLine" id="cb16-18" data-line-number="18"><span class="co">#And names(mod$coefficients[-1]) gives us the names of all the predictor variables</span></a>
+<a class="sourceLine" id="cb16-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb16-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb16-21" data-line-number="21"><span class="co"># Get table of coefficients, format p-values, retain only those less than .05, remove intercept from display.</span></a>
+<a class="sourceLine" id="cb16-22" data-line-number="22">tidied_mod&lt;-<span class="st"> </span>broomExtra<span class="op">::</span><span class="kw">tidy_parameters</span>(mod) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">mutate</span>(<span class="dt">p.value =</span> <span class="kw">format_p_val</span>(p.value)) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">filter</span>(p.value <span class="op">&lt;</span><span class="st"> </span><span class="fl">.05</span>, term <span class="op">!=</span><span class="st"> &quot;(Intercept)&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">arrange</span>(<span class="kw">desc</span>(estimate))</a>
+<a class="sourceLine" id="cb16-23" data-line-number="23"></a>
+<a class="sourceLine" id="cb16-24" data-line-number="24">tidied_mod</a></code></pre></div>
+<pre><code>## # A tibble: 5 x 7
+##   term                   estimate std.error statistic p.value conf.low conf.high
+##   &lt;chr&gt;                     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 ref_bpi_pain_interfer…   3.04      1.41        2.16 0.0336   0.240       5.84 
+## 2 ref_pcs_total            0.558     0.0751      7.44 0        0.409       0.707
+## 3 ref_weight               0.0840    0.0399      2.11 0.0378   0.00484     0.163
+## 4 ref_bpi_walking         -0.990     0.400      -2.48 0.0150  -1.78       -0.197
+## 5 ref_bpi_sleep           -1.39      0.490      -2.84 0.00553 -2.36       -0.418</code></pre>
+<div class="sourceCode" id="section-cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co">#glue::glue(&quot;For each 1-point increase in {tidied_mod$term} there is a change in depression of #{round(tidied_mod$estimate, 2)} units (with a p-value of {round(tidied_mod$p.value, 6)})&quot;)</span></a></code></pre></div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="section-drop-variables.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="section-feature-selection.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/%s",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>
